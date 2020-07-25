@@ -1,15 +1,23 @@
 import pygame
 import math
+import locals
+import re
 
 
 class Tile(pygame.sprite.Sprite):
 
-    _grid_pos: [int, int] = None
-    _pos: [int, int] = None
+    point: [float, float]
 
-    def __init__(self, x_pos, y_pos, grid_pos_x, grid_pos_y):
+    def __init__(self, x_pos, y_pos, grid_pos_x, grid_pos_y, flag=0):
         self._pos = [x_pos, y_pos]
         self._grid_pos = [grid_pos_x, grid_pos_y]
+        self.point = [x_pos + float(locals.tileSize / 2),
+                      y_pos + float(locals.tileSize / 2)]
+        if flag:
+            if flag == locals.TILE_BLANK:
+                self.image = pygame.image.load()
+            else:
+                self.image = pygame.image.load('src/img/pacman/pacman.0.png')
 
     @property
     def pos(self):
@@ -21,7 +29,7 @@ class Tile(pygame.sprite.Sprite):
         return math.sqrt(x + y)
 
     def __repr__(self):
-        return f"<tile({self[0]},{self[1]}): pos=({self._pos[0]}, {self._pos[1]})>"
+        return f"<tile({self.pos}): gridPos=({self._grid_pos})>"
 
     def __getitem__(self, item):
         if not isinstance(item, int) and item is not (0 or 1):
@@ -53,7 +61,27 @@ class Tile(pygame.sprite.Sprite):
         return self
 
 
-class GridTile(Tile):
-    def __init__(self, x_pos, y_pos, grid_pos_x, grid_pos_y):
-        super(GridTile, self).__init__(x_pos, y_pos, grid_pos_x, grid_pos_y)
-        self.image = 'a'
+class Grid:
+
+    def __init__(self, flag=0):
+        self._tiles = [[Tile(x, y, x * locals.tileSize, y * locals.tileSize)
+                       for x in range(locals.maxArenaTileWidthCount)]
+                       for y in range(locals.maxArenaTileHeightCount)]
+        print(*self._tiles)
+
+    def __getitem__(self, item):
+        print(item)
+        if isinstance(item, slice):
+            if isinstance(item.start, int) and isinstance(item.stop, int):
+                return self._tiles[item.start][item.stop]
+            elif isinstance(item.start, int) and item.stop is None:
+                return self._tiles[item.start][0]
+            elif isinstance(item.stop, int) and item.start is None:
+                return self._tiles[item.stop]
+        return [0, 0]
+
+
+
+
+level = Grid()
+print(*level[2:], sep='\n')

@@ -3,24 +3,10 @@ from typing import TypeVar
 import math
 import pygame
 
-from level import GridTile
+from locals import *
 
-grida = GridTile(100, 100, 1, 0)
-gridb = GridTile(150, 150, 0, 1)
-print('distance =', grida.distance(gridb))
 
 pygame.init()
-
-# screen
-screenWidth = int(pygame.display.Info().current_w / 2)
-screenHeight = int(pygame.display.Info().current_h / 2)
-
-# arena tile size
-maxArenaTileHeightCount = 31
-maxArenaTileWidthCount = 28
-
-# tile size
-tileSize = int(screenHeight / maxArenaTileHeightCount + 5)
 
 # arena size
 arenaWidth = maxArenaTileWidthCount * tileSize
@@ -34,13 +20,7 @@ clock = pygame.time.Clock()
 main_screen = pygame.display.set_mode((screenWidth, screenHeight),
                                       flags=pygame.RESIZABLE)
 
-"""
------------------------------------------------------------------
-"""
-
-"""
------------------------------------------------------------------
-"""
+# TODO: Setup scene to render and update objects
 
 while True:
     for event in pygame.event.get():
