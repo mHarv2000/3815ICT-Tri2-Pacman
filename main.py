@@ -2,25 +2,21 @@ from sys import exit as ext
 from typing import TypeVar
 import math
 import pygame
-
+from consts import *
 from level import Grid
-from locals import *
 
-
+grid = Grid(GenType.SQUAREGRID, 'src/data/data.json')
 pygame.init()
 
-grid = Grid()
 clock = pygame.time.Clock()
-main_screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT),
-                                      flags=pygame.RESIZABLE)
+main_screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-# TODO: Setup scene to render and update objects
-
+main_screen.fill((0, 0, 0))
 while True:
+    clock.tick(5)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             ext(0)
 
-    grid.draw(main_screen)
-    clock.tick(5)
+    pygame.display.flip()
