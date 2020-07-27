@@ -1,69 +1,12 @@
+import json
+import os
 from typing import NewType, List, Type, Union
 
 import pygame
 import math
-from locals import *
+from consts import *
 import re
-
-import uniqueTypes as ut
-
-
-class Tile(pygame.sprite.Sprite):
-
-    point: ut.Point
-
-    def __init__(self, x_pos: ut.Coord, y_pos: ut.Coord, grid_pos_x: ut.Coord,
-                 grid_pos_y: ut.Coord, flag=0):
-        self._pos = [x_pos, y_pos]
-        self._grid_pos = [grid_pos_x, grid_pos_y]
-        self.point = [x_pos + float(TILE_SIZE / 2),
-                      y_pos + float(TILE_SIZE / 2)]
-        if flag:
-            if flag == TILE_BLANK:
-                self.image = pygame.image.load()
-        else:
-            self.image = pygame.image.load('src/img/pacman/pacman_0.png')
-
-    @property
-    def pos(self):
-        return tuple(self._pos)
-
-    def distance(self, other):
-        x = math.pow(other.pos[0] - self._pos[0], 2)
-        y = math.pow(other.pos[1] - self._pos[1], 2)
-        return math.sqrt(x + y)
-
-    def __repr__(self):
-        return str(self._pos)
-
-    def __getitem__(self, item: slice):
-        if not isinstance(item, int) and item is not (0 or 1):
-            assert IndexError, "only x and y axis are supported (0 and 1)"
-        return self._grid_pos[item]
-
-    def __add__(self, other):
-        if isinstance(other, self):
-            self._grid_pos[0] += other[0]
-            self._grid_pos[1] += other[1]
-        elif isinstance(other, int):
-            self._grid_pos[0] += other
-            self._grid_pos[1] += other
-        else:
-            assert ValueError, "Addition of non tile objects or " \
-                               "integer values are not allowed"
-        return self
-
-    def __sub__(self, other):
-        if isinstance(other, self):
-            self._grid_pos[0] -= other[0]
-            self._grid_pos[1] -= other[1]
-        elif isinstance(other, int):
-            self._grid_pos[0] -= other
-            self._grid_pos[1] -= other
-        else:
-            assert ValueError, "Subtraction of non tile objects or " \
-                               "integer values are not allowed"
-        return self
+from tile import Tile
 
 
 # list of Tile objects for rows OR columns
@@ -72,13 +15,128 @@ Edge = NewType('Edge', [int, int])
 Area = NewType('Area', List[Union[Tile, List[Tile]]])
 
 
-class Grid(pygame.sprite.Group):
+class Grid:
+    map: list = [[]]
 
-    def __init__(self, flag=0):
-        self._tiles = [[Tile(x, y, x * TILE_SIZE, y * TILE_SIZE)
-                       for x in range(MAX_SCENE_TILE_WIDTH)]
-                       for y in range(MAX_SCENE_TILE_HEIGHT)]
-        self.add(self[:])
+    def __init__(self, genType, levelFile: str = None):
+        self.genType = genType
+        if levelFile is not None and os.path.exists(levelFile):
+            with open(levelFile, 'r') as file:
+                self.data = json.load(file)
+        self.genGrid()
+        self.correctWalls()
+
+    def genGrid(self, levelNo=0):
+        if self.genType == GenType.SQUAREGRID:
+            if levelNo == 0:
+                for ri, row in enumerate(self.data['staticLevel']):
+                    self.map.append([])
+                    for ci, val in enumerate(row):
+                        if val == '.':
+                            self.map[ri].append(Tile(
+                                ri, ci, ri * TILE_SIZE, ci * TILE_SIZE,
+                                TileType.TILE_BLANK
+                            ))
+                        elif val == '0':
+                            self.map[ri].append(Tile(
+                                ri, ci, ri * TILE_SIZE, ci * TILE_SIZE,
+                                TileType.TILE_DBL_WALL
+                            ))
+                        elif val == '1':
+                            self.map[ri].append(Tile(
+                                ri, ci, ri * TILE_SIZE, ci * TILE_SIZE,
+                                TileType.TILE_WALL
+                            ))
+                        elif val == '-':
+                            self.map[ri].append(Tile(
+                                ri, ci, ri * TILE_SIZE, ci * TILE_SIZE,
+                                TileType.TILE_FRUIT
+                            ))
+
+    def correctWalls(self):
+
+        def checkTR(x, y):
+            if self.map[x][y - 1].tileType == TileType.TILE_DBL_WALL and \
+                    self.map[x + 1][y].tileType == TileType.TILE_DBL_WALL:
+                return TileType.TILE_DBL_WALL_BL
+            else:
+                assert ValueError, f"something wrong with coordinate ({x}, {y})"
+
+        def checkTL(x, y):
+            if self.map[x][y - 1].tileType == TileType.TILE_DBL_WALL and \
+                    self.map[x - 1][y].tileType == TileType.TILE_DBL_WALL:
+                return TileType.TILE_DBL_WALL_BR
+            else:
+                assert ValueError, f"something wrong with coordinate ({x}, {y})"
+
+        def checkBR(x, y):
+            print(f"vals are {x}, {y}")
+            if self.map[x][y + 1].tileType == TileType.TILE_DBL_WALL and \
+                    self.map[x + 1][y].tileType == TileType.TILE_DBL_WALL:
+                return TileType.TILE_DBL_WALL_TL
+            else:
+                assert ValueError, f"something wrong with coordinate ({x}, {y})"
+
+        def checkBL(x, y):
+            if self.map[x][y + 1].tileType == TileType.TILE_DBL_WALL and \
+                    self.map[x - 1][y].tileType == TileType.TILE_DBL_WALL:
+                return TileType.TILE_DBL_WALL_TR
+            else:
+                assert ValueError, f"something wrong with coordinate ({x}, {y})"
+
+        def checkH(x, y):
+            if self.map[x - 1][y].tileType == TileType.TILE_DBL_WALL and \
+                    self.map[x + 1][y].tileType == TileType.TILE_DBL_WALL:
+                return TileType.TILE_DBL_WALL_H
+            else:
+                assert ValueError, f"something wrong with coordinate ({x}, {y})"
+
+        def checkV(x, y):
+            if self.map[x][y-1].tileType == TileType.TILE_DBL_WALL and \
+                    self.map[x][y+1].tileType == TileType.TILE_DBL_WALL:
+                return TileType.TILE_DBL_WALL_V
+            else:
+                assert ValueError, f"something wrong with coordinate ({x}, {y})"
+
+        MW = MAX_SCENE_TILE_HEIGHT - 6
+        MH = MAX_SCENE_TILE_WIDTH - 1
+        print(MW, MH)
+        for x, row in enumerate(self.map):
+            for y, tile in enumerate(self.map[x]):
+                if x == 0:
+                    if y == 0:
+                        checkBR(x, y)
+                    if y == MH:
+                        checkTR(x, y)
+                    if y != 0 and y != MH:
+                        checkBR(x, y)
+                        checkTR(x, y)
+                        checkV(x, y)
+                if x == MW:
+                    if y == 0:
+                        checkBL(x, y)
+                    if y == MH:
+                        checkTL(x, y)
+                    if y != 0 and y != MH:
+                        checkBL(x, y)
+                        checkTL(x, y)
+                        checkV(x, y)
+                if x != 0 and x != MW:
+                    if y == 0:
+                        checkBR(x, y)
+                        checkBL(x, y)
+                        checkH(x, y)
+                    if y == MH:
+                        checkTR(x, y)
+                        checkTL(x, y)
+                        checkH(x, y)
+                    if y != 0 and y != MH:
+                        checkTR(x, y)
+                        checkTL(x, y)
+                        checkBR(x, y)
+                        checkBL(x, y)
+                        checkH(x, y)
+                        checkV(x, y)
 
     def selectSubRow(self, row: int, start: int, end: int) -> Edge:
         """
@@ -88,9 +146,9 @@ class Grid(pygame.sprite.Group):
         :param end: the end x-axis index
         :return: an area of the selected tiles
         """
-        return self._tiles[row][start:end + 1]
+        return self.map[row][start:end + 1]
 
-    def selectSubCol(self, col, start, end) -> Edge:
+    def selectSubCol(self, col: int, start: int, end: int) -> Edge:
         """
         Select a column of tiles
         :param col: the x-axis
@@ -98,11 +156,11 @@ class Grid(pygame.sprite.Group):
         :param end: the end y-axis index
         :return: an area of the selected tiles
         """
-        return [row[col] for i, row in enumerate(self._tiles) if start <= i <= end]
+        return [row[col] for i, row in enumerate(self.map) if start <= i <= end]
 
     def selectArea(self, start_pos, end_pos) -> Area:
         area = []
-        for i, row in enumerate(self._tiles):
+        for i, row in enumerate(self.map):
             if start_pos[1] <= i <= end_pos[1]:
                 area.append(row[start_pos[0]: end_pos[0] + 1])
         return area
@@ -127,21 +185,21 @@ class Grid(pygame.sprite.Group):
         return [row[::-1] for row in area]
 
     def __getitem__(self, item):
-        if isinstance(item, slice):
-            if isinstance(item.start, int) and isinstance(item.stop, int):
-                return self._tiles[item.stop][item.start]
-            elif isinstance(item.start, int) and item.stop is None:
-                return [col[item.start] for col in self._tiles]
-            elif isinstance(item.stop, int) and item.start is None:
-                return self._tiles[item.stop]
-            elif item.start is None and item.stop is None:
-                return [row for row in self._tiles for row in row]
-        return [0, 0]
+        return self.map[item]
 
 
-level = Grid()
-area = level.selectArea([3, 3], [5, 5])
-print(*area, sep='\n')
-print('---------------')
-print(*level.flipAreaX(area), sep='\n')
-print(*level.flipAreaY(area), sep='\n')
+grid = Grid(GenType.SQUAREGRID, 'src/data/data.json')
+pygame.init()
+
+clock = pygame.time.Clock()
+main_screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+main_screen.fill((0, 0, 0))
+while True:
+    clock.tick(5)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            quit(0)
+
+    pygame.display.flip()
