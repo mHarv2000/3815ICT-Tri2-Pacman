@@ -11,13 +11,16 @@ class Tile:
     center: ut.Point
 
     def __init__(self, x_pos: ut.Coord, y_pos: ut.Coord, grid_pos_x: int,
-                 grid_pos_y: int, tileType):
+                 grid_pos_y: int, tileType=None, tileId=None, tileAttr=None):
         self._pos = [x_pos, y_pos]
         self._grid_pos = [grid_pos_x, grid_pos_y]
         self.center = [x_pos + float(TILE_SIZE / 2),
                       y_pos + float(TILE_SIZE / 2)]
-        self.tileType = tileType
         self.rect = pygame.Rect((grid_pos_x, grid_pos_y), (TILE_SIZE, TILE_SIZE))
+
+        self.tileType = tileType
+        self.tileId = tileId
+        self.tileAttr = tileAttr
 
     @property
     def pos_x(self):
@@ -41,12 +44,15 @@ class Tile:
         return math.sqrt(x + y)
 
     def __repr__(self):
-        return f"<{self.tileType}: {self._pos}>"
+        return f"<{self.tileType}|{self.tileId}: pos={self._pos} grid_pos={self._grid_pos}>"
 
     def __getitem__(self, item: slice):
         if not isinstance(item, int) and item is not (0 or 1):
             assert IndexError, "only x and y axis are supported (0 and 1)"
         return self._grid_pos[item]
+
+    def __eq__(self, other):
+        return self.tileType == other
 
     def __add__(self, other):
         if isinstance(other, self):

@@ -1,22 +1,34 @@
-from sys import exit as ext
-from typing import TypeVar
-import math
-import pygame
-from consts import *
-from level import Grid
+import json
+from consts import GenType, TILE_SIZE, TileType
+from tile import Tile
 
-grid = Grid(GenType.SQUAREGRID, 'src/data/data.json')
-pygame.init()
+with open('src/data/data.json', 'r') as file:
+    data = json.load(file)
+map = []
+genType = GenType.SQUAREGRID
 
-clock = pygame.time.Clock()
-main_screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+def gen_grid(levelNo=0):
+    if genType == GenType.SQUAREGRID:
+        if levelNo == 0:
+            for y, column in enumerate(data['staticLevel']):
+                map.append([])
+                for x, value in enumerate(column):
+                    if value == '.':
+                        map[y].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, TileType.TILE_BLANK))
+                    elif value == '0':
+                        map[y].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, TileType.TILE_DBL_WALL))
+                    elif value == '1':
+                        map[y].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, TileType.TILE_WALL))
+                    elif value == '2':
+                        map[y].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, TileType.TILE_CORNER))
+                    elif value == '-':
+                        map[y].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, TileType.TILE_FRUIT))
+                    elif value == '*':
+                        map[y].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, TileType.TILE_ENERGIZER))
 
-main_screen.fill((0, 0, 0))
-while True:
-    clock.tick(5)
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            ext(0)
+def correct_walls():
 
-    pygame.display.flip()
+
+
+gen_grid()
+print(*map, sep='\n')

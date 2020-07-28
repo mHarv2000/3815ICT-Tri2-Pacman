@@ -19,11 +19,15 @@ SCENE_WIDTH = MAX_SCENE_TILE_WIDTH * TILE_SIZE
 
 ORIGIN = (int(SCREEN_WIDTH / 2) - int(SCENE_WIDTH / 2), 0)
 
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 WHITE = (255, 255, 255)
 
+
 @unique
 class GenType(Enum):
+
     SQUAREGRID = 0  # square grid
     HEXGRID = 1  # hexagonal grid
     RANDGRID = 2  # arbitrary grid
@@ -31,32 +35,42 @@ class GenType(Enum):
 
 @unique
 class TileType(Enum):
-    TILE_BLANK = 0   # blank tile
-    TILE_DBL_WALL = 1
-    TILE_WALL = 2
-    TILE_DOOR = 3
 
-    TILE_DBL_WALL_TL = 4     # double wall top-left tile
-    TILE_DBL_WALL_TR = 5     # double wall top-right tile
-    TILE_DBL_WALL_BR = 6     # double wall bottom_right tile
-    TILE_DBL_WALL_BL = 7     # double wall bottom-left tile
-    TILE_DBL_WALL_H = 8  # double wall horizontal tile
-    TILE_DBL_WALL_V = 9  # double wall vertical tile
-    TILE_WALL_TL = 10     # wall top-left tile
-    TILE_WALL_TR = 11     # wall top-right tile
-    TILE_WALL_BR = 12     # wall bottom-right tile
-    TILE_WALL_BL = 13     # wall bottom-left tile
-    TILE_WALL_H = 14  # wall horizontal tile
-    TILE_WALL_V = 15  # wall vertical tile
-    TILE_FRUIT = 16   # fruit tile
-    TILE_ENERGIZER = 17   # energizer tile
-    TILE_CHERRY = 18
-    TILE_DOOR_H = 19    # door tile
-    TILE_DOOR_V = 20
+    DBL_WALL = 0
+    WALL = 1
+    CORNER = 2
+    DBL_CORNER = 3
+    DOOR = 4
 
-    TILE_CORNER = 21
-    TILE_GHOST_SPAWN = 22
 
+@unique
+class TileID(Enum):
+
+    BLANK = 0  # blank tile
+    DBL_WALL_TL = 1  # double wall top-left tile
+    DBL_WALL_TR = 2  # double wall top-right tile
+    DBL_WALL_BR = 3  # double wall bottom_right tile
+    DBL_WALL_BL = 4  # double wall bottom-left tile
+    DBL_WALL_H = 5  # double wall horizontal tile
+    DBL_WALL_V = 6  # double wall vertical tile
+    WALL_TL = 7  # wall top-left tile
+    WALL_TR = 8  # wall top-right tile
+    WALL_BR = 9  # wall bottom-right tile
+    WALL_BL = 10  # wall bottom-left tile
+    WALL_H = 11  # wall horizontal tile
+    WALL_V = 12  # wall vertical tile
+    FRUIT = 13  # fruit tile
+    ENERGIZER = 14  # energizer tile
+    CHERRY = 15
+    DOOR_H = 16  # door tile
+    DOOR_V = 17
+
+
+@unique
+class TileAttr(Enum):
+
+    GHOST_SPAWN = 0
+    GHOST_FLEE = 1
 
 
 @unique
@@ -65,3 +79,4 @@ class Direction(Enum):
     SOUTH = 1
     EAST = 2
     WEST = 3
+

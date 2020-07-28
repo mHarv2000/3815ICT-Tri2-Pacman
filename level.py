@@ -16,127 +16,155 @@ Area = NewType('Area', List[Union[Tile, List[Tile]]])
 
 
 class Grid:
-    map: list = [[]]
+
+    map: list
 
     def __init__(self, genType, levelFile: str = None):
         self.genType = genType
         if levelFile is not None and os.path.exists(levelFile):
             with open(levelFile, 'r') as file:
                 self.data = json.load(file)
-        self.genGrid()
-        self.correctWalls()
+        self.gen_map()
+        self.correct_walls()
 
-    def genGrid(self, levelNo=0):
+    def checkH(self, x, y):
+        return self.map[x - 1][y].tileType == TileType.DBL_WALL and \
+                self.map[x + 1][y].tileType == TileType.DBL_WALL
+
+    def checkV(self, x, y):
+        return self.map[x][y - 1].tileType == TileType.DBL_WALL and \
+                self.map[x][y + 1].tileType == TileType.DBL_WALL
+
+    def gen_map(self):
         if self.genType == GenType.SQUAREGRID:
-            if levelNo == 0:
-                for ri, row in enumerate(self.data['staticLevel']):
-                    self.map.append([])
-                    for ci, val in enumerate(row):
-                        if val == '.':
-                            self.map[ri].append(Tile(
-                                ri, ci, ri * TILE_SIZE, ci * TILE_SIZE,
-                                TileType.TILE_BLANK
-                            ))
-                        elif val == '0':
-                            self.map[ri].append(Tile(
-                                ri, ci, ri * TILE_SIZE, ci * TILE_SIZE,
-                                TileType.TILE_DBL_WALL
-                            ))
-                        elif val == '1':
-                            self.map[ri].append(Tile(
-                                ri, ci, ri * TILE_SIZE, ci * TILE_SIZE,
-                                TileType.TILE_WALL
-                            ))
-                        elif val == '-':
-                            self.map[ri].append(Tile(
-                                ri, ci, ri * TILE_SIZE, ci * TILE_SIZE,
-                                TileType.TILE_FRUIT
-                            ))
+            self.map = [[] for x in range(MAX_SCENE_TILE_WIDTH)]
+            for y, column in enumerate(self.data['staticLevel']):
+                for x, value in enumerate(column):
+                    if value == ' ':
+                        self.map[x].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, tileId=TileID.BLANK))
+                    elif value == '!':
+                        self.map[x].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, tileType=TileType.DBL_WALL, tileId=TileID.DBL_WALL_V))
+                    elif value == '=':
+                        self.map[x].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, tileType=TileType.DBL_WALL, tileId=TileID.DBL_WALL_H))
+                    elif value == 'o':
+                        self.map[x].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, tileType=TileType.DBL_CORNER))
+                    elif value == '|':
+                        self.map[x].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, tileType=TileType.WALL, tileId=TileID.WALL_V))
+                    elif value == '-':
+                        self.map[x].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, tileType=TileType.WALL, tileId=TileID.WALL_H))
+                    elif value == '+':
+                        self.map[x].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, tileType=TileType.CORNER))
+                    elif value == '.':
+                        self.map[x].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, tileId=TileID.FRUIT))
+                    elif value == '*':
+                        self.map[x].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, tileId=TileID.ENERGIZER))
+                    elif value == 'c':
+                        self.map[x].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, tileId=TileID.CHERRY))
+                    elif value == 'd':
+                        self.map[x].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, tileType=TileType.DOOR))
 
-    def correctWalls(self):
+            self.width = len(self.map)
+            self.height = len(self.map[0])
 
-        def checkTR(x, y):
-            if self.map[x][y - 1].tileType == TileType.TILE_DBL_WALL and \
-                    self.map[x + 1][y].tileType == TileType.TILE_DBL_WALL:
-                return TileType.TILE_DBL_WALL_BL
-            else:
-                assert ValueError, f"something wrong with coordinate ({x}, {y})"
+    def correct_walls(self):
 
-        def checkTL(x, y):
-            if self.map[x][y - 1].tileType == TileType.TILE_DBL_WALL and \
-                    self.map[x - 1][y].tileType == TileType.TILE_DBL_WALL:
-                return TileType.TILE_DBL_WALL_BR
-            else:
-                assert ValueError, f"something wrong with coordinate ({x}, {y})"
+        def update_corner_tl(x: int, y: int, tile_type: TileType):
+            """
+            Check if tile should become a top left corner
+            :param x: x coordinate
+            :param y: y coordinate
+            :param tile_type: the generic type of the tile being compared to, only TileType formats are accepted
+            """
+            if self.map[x][y + 1].tileId == TileID.DBL_WALL_V and self.map[x + 1][y].tileId == TileID.DBL_WALL_H:
+                self.map[x][y].tileId = TileID.DBL_WALL_TL
+                self.map[x][y].rect = pygame.Rect(
+                    (self.map[x][y].x + int(TILE_SIZE / 2), self.map[x][y].y + int(TILE_SIZE / 2)),
+                    (TILE_SIZE, TILE_SIZE))
 
-        def checkBR(x, y):
-            print(f"vals are {x}, {y}")
-            if self.map[x][y + 1].tileType == TileType.TILE_DBL_WALL and \
-                    self.map[x + 1][y].tileType == TileType.TILE_DBL_WALL:
-                return TileType.TILE_DBL_WALL_TL
-            else:
-                assert ValueError, f"something wrong with coordinate ({x}, {y})"
+        def update_corner_tr(x: int, y: int, tile_type: TileType):
+            """
+            Check if tile should become a top right corner
+            :param x: x coordinate
+            :param y: y coordinate
+            :param tile_type: the generic type of the tile being compared to, only TileType formats are accepted
+            """
+            if self.map[x][y + 1].tileId == TileID.DBL_WALL_V and self.map[x - 1][y].tileId == TileID.DBL_WALL_H:
+                self.map[x][y].tileId = TileID.DBL_WALL_TR
+                self.map[x][y].rect = pygame.Rect(
+                    (self.map[x][y].x - int(TILE_SIZE / 2), self.map[x][y].y + int(TILE_SIZE / 2)),
+                    (TILE_SIZE, TILE_SIZE))
 
-        def checkBL(x, y):
-            if self.map[x][y + 1].tileType == TileType.TILE_DBL_WALL and \
-                    self.map[x - 1][y].tileType == TileType.TILE_DBL_WALL:
-                return TileType.TILE_DBL_WALL_TR
-            else:
-                assert ValueError, f"something wrong with coordinate ({x}, {y})"
+        def update_corner_bl(x: int, y: int, tile_type: TileType):
+            """
+            Check if tile should become a bottom left corner
+            :param x: x coordinate
+            :param y: y coordinate
+            :param tile_type: the generic type of the tile being compared to, only TileType formats are accepted
+            """
+            if self.map[x][y - 1].tileId == TileID.DBL_WALL_V and self.map[x + 1][y].tileId == TileID.DBL_WALL_H:
+                self.map[x][y].tileId = TileID.DBL_WALL_BL
+                self.map[x][y].rect = pygame.Rect(
+                    (self.map[x][y].x + int(TILE_SIZE / 2), self.map[x][y].y - int(TILE_SIZE / 2)),
+                    (TILE_SIZE, TILE_SIZE))
 
-        def checkH(x, y):
-            if self.map[x - 1][y].tileType == TileType.TILE_DBL_WALL and \
-                    self.map[x + 1][y].tileType == TileType.TILE_DBL_WALL:
-                return TileType.TILE_DBL_WALL_H
-            else:
-                assert ValueError, f"something wrong with coordinate ({x}, {y})"
+        def update_corner_br(x: int, y: int, tile_type: TileType):
+            """
+            Check if tile should become a bottom right corner and then update the tile's `tileId` to
+            match the corner id and then add a physical boundary box
+            :param x: x coordinate
+            :param y: y coordinate
+            :param tile_type: the generic type of the tile being compared to, only TileType formats are accepted
+            """
+            if self.map[x][y - 1].tileId == TileID.DBL_WALL_V and self.map[x - 1][y].tileId == TileID.DBL_WALL_H:
+                self.map[x][y].tileId = TileID.DBL_WALL_BR
+                self.map[x][y].rect = pygame.Rect(
+                    (self.map[x][y].x - int(TILE_SIZE / 2), self.map[x][y].y - int(TILE_SIZE / 2)),
+                    (TILE_SIZE, TILE_SIZE))
 
-        def checkV(x, y):
-            if self.map[x][y-1].tileType == TileType.TILE_DBL_WALL and \
-                    self.map[x][y+1].tileType == TileType.TILE_DBL_WALL:
-                return TileType.TILE_DBL_WALL_V
-            else:
-                assert ValueError, f"something wrong with coordinate ({x}, {y})"
+        def compareSides(x: int, y: int, tileType: TileType, includeTop: bool = False, includeLeft: bool = False,
+                         includeBottom: bool = False, includeRight: bool = False):
 
-        MW = MAX_SCENE_TILE_HEIGHT - 6
-        MH = MAX_SCENE_TILE_WIDTH - 1
-        print(MW, MH)
+            top = self.map[x][y - 1].tileId == TileID.DBL_WALL_V if includeTop else False
+            left = self.map[x - 1][y].tileId == TileID.DBL_WALL_H if includeLeft else False
+            bottom = self.map[x][y + 1].tileId == TileID.DBL_WALL_V if includeBottom else False
+            right = self.map[x + 1][y].tileId == TileID.DBL_WALL_H if includeRight else False
+
+            if top and left:
+                update_corner_br(x, y, tileType)
+            if top and right:
+                update_corner_bl(x, y, tileType)
+            if bottom and left:
+                update_corner_tr(x, y, tileType)
+            if bottom and right:
+                update_corner_tl(x, y, tileType)
+
         for x, row in enumerate(self.map):
-            for y, tile in enumerate(self.map[x]):
-                if x == 0:
-                    if y == 0:
-                        checkBR(x, y)
-                    if y == MH:
-                        checkTR(x, y)
-                    if y != 0 and y != MH:
-                        checkBR(x, y)
-                        checkTR(x, y)
-                        checkV(x, y)
-                if x == MW:
-                    if y == 0:
-                        checkBL(x, y)
-                    if y == MH:
-                        checkTL(x, y)
-                    if y != 0 and y != MH:
-                        checkBL(x, y)
-                        checkTL(x, y)
-                        checkV(x, y)
-                if x != 0 and x != MW:
-                    if y == 0:
-                        checkBR(x, y)
-                        checkBL(x, y)
-                        checkH(x, y)
-                    if y == MH:
-                        checkTR(x, y)
-                        checkTL(x, y)
-                        checkH(x, y)
-                    if y != 0 and y != MH:
-                        checkTR(x, y)
-                        checkTL(x, y)
-                        checkBR(x, y)
-                        checkBL(x, y)
-                        checkH(x, y)
-                        checkV(x, y)
+            for y, tile in enumerate(row):
+                if tile == TileType.DBL_CORNER:
+
+                    if x == 0:
+                        if y == 0:
+                            compareSides(x, y, TileType.DBL_WALL, includeTop=False, includeLeft=False)
+                        if y == (self.height - 1):
+                            compareSides(x, y, TileType.DBL_WALL, includeBottom=False, includeLeft=False)
+                    elif x == (self.width - 1):
+                        if y == 0:
+                            compareSides(x, y, TileType.DBL_WALL, includeTop=False, includeRight=False)
+                        if y == (self.height - 1):
+                            compareSides(x, y, TileType.DBL_WALL, includeBottom=False, includeLeft=False)
+                    elif y == 0:
+                        if x == 0:
+                            compareSides(x, y, TileType.DBL_WALL, includeTop=False, includeLeft=False)
+                        if x == (self.width - 1):
+                            compareSides(x, y, TileType.DBL_WALL, includeTop=False, includeRight=False)
+                    elif y == (self.height - 1):
+                        if x == 0:
+                            compareSides(x, y, TileType.DBL_WALL, includeBottom=False, includeLeft=False)
+                        if x == (self.width - 1):
+                            compareSides(x, y, TileType.DBL_WALL, includeBottom=False, includeRight=False)
+                    else:
+                        compareSides(x, y, TileType.DBL_WALL, True, True, True, True)
+
 
     def selectSubRow(self, row: int, start: int, end: int) -> Edge:
         """
@@ -195,11 +223,37 @@ clock = pygame.time.Clock()
 main_screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 main_screen.fill((0, 0, 0))
+print(*grid[0], sep='\n')
 while True:
     clock.tick(5)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             quit(0)
+
+    for row in grid.map:
+        for tile in row:
+
+
+            if tile.tileId == TileID.DBL_WALL_TL:
+                pygame.draw.arc(main_screen, BLUE, tile.rect, math.pi*.5, math.pi, 1)
+                pygame.draw.rect(main_screen, RED, tile.rect, 1)
+            elif tile.tileId == TileID.DBL_WALL_TR:
+                pygame.draw.arc(main_screen, BLUE, tile.rect, 0, math.pi*.5, 1)
+                pygame.draw.rect(main_screen, RED, tile.rect, 1)
+            elif tile.tileId == TileID.DBL_WALL_BR:
+                pygame.draw.arc(main_screen, BLUE, tile.rect, math.pi*1.5, math.pi*2, 1)
+                pygame.draw.rect(main_screen, RED, tile.rect, 1)
+            elif tile.tileId == TileID.DBL_WALL_BL:
+                pygame.draw.arc(main_screen, BLUE, tile.rect, math.pi, math.pi*1.5, 1)
+                pygame.draw.rect(main_screen, RED, tile.rect, 1)
+            elif tile.tileId == TileID.DBL_WALL_H:
+                pygame.draw.line(main_screen, BLUE,
+                                 [tile.x, tile.y + int(TILE_SIZE / 2)],
+                                 [tile.x + TILE_SIZE, tile.y + int(TILE_SIZE / 2)])
+            elif tile.tileId == TileID.DBL_WALL_V:
+                pygame.draw.line(main_screen, BLUE,
+                                 [tile.x + int(TILE_SIZE / 2), tile.y],
+                                 [tile.x + int(TILE_SIZE / 2), tile.y + TILE_SIZE])
 
     pygame.display.flip()
