@@ -1,6 +1,11 @@
+import json
+
 import pygame
 
-from consts import TILE_SIZE, Direction
+from consts import *
+import numpy as np
+
+from tile import Tile
 
 
 class PacMan(pygame.sprite.Sprite):
@@ -15,15 +20,38 @@ class PacMan(pygame.sprite.Sprite):
             pygame.image.load('./src/img/pacman/pacman_2.png'),
             pygame.image.load('./src/img/pacman/pacman_1.png'),
         ]
-        self.index = 0
-        self.image = self.images[self.index]
+
+        self._current_direction = Direction.NORTH
+
+        self._index = 0
+        self.image = pygame.transform.scale(self.images[self._index], (TILE_SIZE, TILE_SIZE))
         self.rect = pygame.Rect(x_pos, y_pos, TILE_SIZE, TILE_SIZE)
 
     def animate_eat(self):
-        self.index += 1
-        if self.index >= len(self.images):
-            self.index = 0
-        self.image = self.images[self.index]
+        self._index += 1
+        if self._index >= len(self.images):
+            self._index = 0
+        self.image = pygame.transform.scale(self.images[self._index], (TILE_SIZE, TILE_SIZE))
+
+    def move(self):
+        if self._current_direction == Direction.NORTH:
+            self.rect.move_ip(0, -self._speed)
+        elif self._current_direction == Direction.SOUTH:
+            self.rect.move_ip(0, self._speed)
+        elif self._current_direction == Direction.EAST:
+            self.rect.move_ip(self._speed, 0)
+        elif self._current_direction == Direction.WEST:
+            self.rect.move_ip(-self._speed, 0)
+
+    def change_direction(self, direction, speed):
+        if direction == Direction.NORTH:
+            self.rect.move_ip(0, -speed)
+        elif direction == Direction.SOUTH:
+            self.rect.move_ip(0, speed)
+        elif direction == Direction.EAST:
+            self.rect.move_ip(speed, 0)
+        elif direction == Direction.WEST:
+            self.rect.move_ip(-speed, 0)
 
 
 class Ghost(pygame.sprite.Sprite):
@@ -41,26 +69,64 @@ class Ghost(pygame.sprite.Sprite):
             pygame.image.load(f'./src/img/ghost/{name}/ghost_up_1.png'),
         ]
 
-        self.direction = Direction.NORTH
+        self._current_direction = Direction.NORTH
 
-        self.index = 0
-        self.image = self.images[self.index]
+        self._index = 0
+        self.image = self.images[self._index]
         self.rect = pygame.Rect(x_pos, y_pos, TILE_SIZE, TILE_SIZE)
 
     def animate_move(self):
-        if self.direction == Direction.SOUTH and self.image == self.images[0]:
+        if self._current_direction == Direction.SOUTH and self.image == self.images[0]:
             self.image = self.images[1]
-        elif self.direction == Direction.SOUTH and self.image == self.images[1]:
+        elif self._current_direction == Direction.SOUTH and self.image == self.images[1]:
             self.image = self.images[0]
-        elif self.direction == Direction.WEST and self.image == self.images[2]:
+        elif self._current_direction == Direction.WEST and self.image == self.images[2]:
             self.image = self.images[3]
-        elif self.direction == Direction.WEST and self.image == self.images[3]:
+        elif self._current_direction == Direction.WEST and self.image == self.images[3]:
             self.image = self.images[2]
-        elif self.direction == Direction.EAST and self.image == self.images[4]:
+        elif self._current_direction == Direction.EAST and self.image == self.images[4]:
             self.image = self.images[5]
-        elif self.direction == Direction.EAST and self.image == self.images[5]:
+        elif self._current_direction == Direction.EAST and self.image == self.images[5]:
             self.image = self.images[4]
-        elif self.direction == Direction.NORTH and self.image == self.images[6]:
+        elif self._current_direction == Direction.NORTH and self.image == self.images[6]:
             self.image = self.images[7]
-        elif self.direction == Direction.NORTH and self.image == self.images[7]:
+        elif self._current_direction == Direction.NORTH and self.image == self.images[7]:
             self.image = self.images[6]
+
+data = None
+with open('src/data/data.json', 'r') as file:
+    data = json.load(file)
+
+mep = np.array([[Tile(x, y, x * TILE_SIZE, y * TILE_SIZE) for y in range(WINDOW_TILE_WIDTH)] for x in range(WINDOW_TILE_HEIGHT)])
+for y, column in enumerate(data['staticLevel']):
+    for x, value in enumerate(column):
+        print(x, y)
+        if value == ' ':
+            mep[y, x].tileId = TileID.BLANK
+        elif value == '!':
+            mep[y, x].tileType = TileType.DBL_WALL
+            mep[y, x].tileId = TileID.DBL_WALL_V
+        elif value == '=':
+            mep[y, x].tileType = TileType.DBL_WALL
+            mep[y, x].tileId=TileID.DBL_WALL_H
+        elif value == 'o':
+            mep[y, x].tileType = TileType.DBL_CORNER
+        elif value == '|':
+            mep[y, x].tileType = TileType.WALL
+            mep[y, x].tileId=TileID.WALL_V
+        elif value == '-':
+            mep[y, x].tileType = TileType.WALL
+            mep[y, x].tileId = TileID.WALL_H
+        elif value == '+':
+            mep[y, x].tileType = TileType.CORNER
+        elif value == '.':
+            mep[y, x].tileId = TileID.FRUIT
+        elif value == '*':
+            mep[y, x].tileId = TileID.ENERGIZER
+        elif value == 'c':
+            mep[y, x].tileId = TileID.CHERRY
+        elif value == 'd':
+            mep[y, x].tileType = TileType.DOOR
+
+mep = np.array([*mep], dtype=object)
+print(mep[-1])

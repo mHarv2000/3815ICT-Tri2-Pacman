@@ -1,5 +1,11 @@
+import json
 from enum import Enum, unique
 from typing import NewType
+
+data = []
+
+with open('src/data/data.json', 'r') as file:
+    data = json.load(file)
 
 # Unique data types
 # X and Y Axis Coordinate [x, y]
@@ -7,22 +13,29 @@ Coord = NewType('Coord', [int, int])
 # more precise coordinate [x.00..., y.00...]
 Point = NewType('Point', [float, float])
 
-# vars
-SCREEN_WIDTH = 500   # window width in pixels
-SCREEN_HEIGHT = 500      # window height in pixels
-MAX_SCENE_TILE_WIDTH = 28    # height of scene in tiles
-MAX_SCENE_TILE_HEIGHT = 36     # width of scene in tiles
+IS_FULLSCREEN = data['fullscreen']
+DIFFICULTY_STEP = data['levelDifficultyStep']
+SIZE_SCALE_PER_STEP = data['levelSizeScalePerStep']
+STATIC_LEVEL = data['staticLevel']
 
-TILE_SIZE = int(SCREEN_WIDTH / (MAX_SCENE_TILE_HEIGHT - 5))
-SCENE_WIDTH = MAX_SCENE_TILE_WIDTH * TILE_SIZE
+# vars
+WINDOW_WIDTH = 500   # window width in pixels
+WINDOW_HEIGHT = 500      # window height in pixels
+WINDOW_TILE_WIDTH = data['tileWidth']
+WINDOW_TILE_HEIGHT = data['tileHeight']
+
+TILE_SIZE = WINDOW_HEIGHT // (WINDOW_TILE_HEIGHT + 5)
+SCENE_WIDTH = int(TILE_SIZE * WINDOW_TILE_WIDTH)
 # scene height = SCREEN_HEIGHT
 
-ORIGIN = (int(SCREEN_WIDTH / 2) - int(SCENE_WIDTH / 2), 0)
+ORIGIN = (int(SCENE_WIDTH / 2) - int(SCENE_WIDTH / 2), 0)
+FPS = 15
 
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
 
 
 @unique

@@ -1,7 +1,11 @@
 {
-  "fullscreen": true,
-  "levelScaleStep": 10,
-  "levelScalePerStep": 1,
+  "windowWidth": 500,
+  "windowHeight": 500,
+  "fullscreen": false,
+  "levelDifficultyStep": 10,
+  "levelSizeScalePerStep": 1,
+  "tileHeight": 31,
+  "tileWidth": 28,
   "staticLevel": [
     "o============oo============o",
     "!............!!............!",
