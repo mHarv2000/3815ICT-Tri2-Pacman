@@ -1,24 +1,34 @@
-import json
-import os
-from typing import NewType, List, Type, Union
-
-import pygame
-import math
-
 import numpy as np
-from ai import PacMan
+
 from consts import *
-import re
 from tile import Tile
 
 
-# list of Tile objects for rows OR columns
-Edge = NewType('Edge', [int, int])
-# 2D list of Tile objects for both rows AND columns
-Area = NewType('Area', List[Union[Tile, List[Tile]]])
-
-
 class Grid:
+
+    def __init__(self):
+        self.__xAxis = np.linspace(0, WINDOW_TILE_WIDTH - 1, WINDOW_TILE_HEIGHT, dtype=np.int16)
+        self.__yAxis = np.linspace(0, WINDOW_TILE_WIDTH - 1, WINDOW_TILE_WIDTH, dtype=np.int16)
+        self.__coords = [[(y, x) for x in self.__xAxis] for y in self.__yAxis]
+
+    def __iter__(self):
+        return iter(self.__coords)
+
+    def __getitem__(self, item):
+        if isinstance(item, int):
+            if item <= (WINDOW_TILE_WIDTH - 1):
+                return self.__coords[item]
+            else:
+                assert IndexError, f"coordinate of {item} is out of range, x must be between " \
+                                   f"0-{self.__width} and y 0-{self.__height}"
+        elif isinstance(item, slice):
+            if item.stop <= (WINDOW_TILE_WIDTH - 1):
+                return self.__coords[item]
+        else:
+            assert TypeError, "coordinate index must be an int in the form: coord[int] or coord[int][int]"
+
+
+class TileMap:
     """
     Grid
     ----
@@ -26,18 +36,18 @@ class Grid:
     The grid class is in charge of generating the position, properties, attributes and order of each
     tile within the scene.
     """
-    _map: list
-    _data: list
 
-    def __init__(self, genType, levelFile: str = None):
-        self.genType = genType
-        if levelFile is not None and os.path.exists(levelFile):
-            with open(levelFile, 'r') as file:
-                self._data = json.load(file)
-        self.gen_map()
-        # self.correct_walls()
+    def __init__(self, genType):
+        self.__genType = genType
+        self.__data = STATIC_LEVEL
 
-    def gen_map(self):
+        self.__grid = Grid()
+        self.__tiles = [[Tile(pos, (pos[0] * TILE_SIZE, pos[1] * TILE_SIZE)) for pos in row] for row in self.__grid]
+
+        self.__gen_map()
+        self.__correct_walls()
+
+    def __gen_map(self):
         """
         Generate a list of Tile objects based on a list of symbols representing the positions
 
@@ -59,169 +69,212 @@ class Grid:
 
         :return:
         """
-        if self.genType == GenType.SQUAREGRID:
-            self._map = [[] for x in range(WINDOW_TILE_WIDTH)]
+        if self.__genType == GenType.SQUAREGRID:
             for y, column in enumerate(STATIC_LEVEL):
                 for x, value in enumerate(column):
                     if value == ' ':
-                        self._map[x].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, tileId=TileID.BLANK))
+                        self.__tiles[x][y].tile_id = TileID.BLANK
                     elif value == '!':
-                        self._map[x].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, tileType=TileType.DBL_WALL, tileId=TileID.DBL_WALL_V))
+                        self.__tiles[x][y].tile_type = TileType.DBL_WALL
+                        self.__tiles[x][y].tile_id = TileID.DBL_WALL_V
                     elif value == '=':
-                        self._map[x].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, tileType=TileType.DBL_WALL, tileId=TileID.DBL_WALL_H))
+                        self.__tiles[x][y].tile_type = TileType.DBL_WALL
+                        self.__tiles[x][y].tile_id = TileID.DBL_WALL_H
                     elif value == 'o':
-                        self._map[x].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, tileType=TileType.DBL_CORNER))
+                        self.__tiles[x][y].tile_type = TileType.DBL_CORNER
                     elif value == '|':
-                        self._map[x].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, tileType=TileType.WALL, tileId=TileID.WALL_V))
+                        self.__tiles[x][y].tile_type = TileType.WALL
+                        self.__tiles[x][y].tile_id = TileID.WALL_V
                     elif value == '-':
-                        self._map[x].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, tileType=TileType.WALL, tileId=TileID.WALL_H))
+                        self.__tiles[x][y].tile_type = TileType.WALL
+                        self.__tiles[x][y].tile_id = TileID.WALL_H
                     elif value == '+':
-                        self._map[x].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, tileType=TileType.CORNER))
+                        self.__tiles[x][y].tile_type = TileType.DBL_CORNER
                     elif value == '.':
-                        self._map[x].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, tileId=TileID.FRUIT))
+                        self.__tiles[x][y].tile_id = TileID.FRUIT
                     elif value == '*':
-                        self._map[x].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, tileId=TileID.ENERGIZER))
+                        self.__tiles[x][y].tile_id = TileID.ENERGIZER
                     elif value == 'c':
-                        self._map[x].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, tileId=TileID.CHERRY))
+                        self.__tiles[x][y].tile_id = TileID.CHERRY
                     elif value == 'd':
-                        self._map[x].append(Tile(x, y, x * TILE_SIZE, y * TILE_SIZE, tileType=TileType.DOOR))
+                        self.__tiles[x][y].tile_type = TileType.DOOR
 
-            self._map = np.array(self._map, dtype=object)
-            self.width = len(self._map)
-            self.height = len(self._map[0])
+            self.width = len(self.__tiles)
+            self.height = len(self.__tiles[0])
 
-    def correct_walls(self) -> None:
+    def index_range(func):
         """
-        Change look of tiles without a `TileID`
+        Check if adjacent tiles to the current coordinate are out of range of the
+        index
 
-        Tiles that only contain a `TileType` are expected to be dynamically generated after the
-        map has been created, more specifically used for corner tiles.
-        The method of generating random paths in later levels makes it easy to automatically set
-        adjacent tiles to the path to either horizontal or vertical walls. The purpose of this method is
-        to assign horizontal or vertical walls to corners if opposite tiles are not the same. For example:
-        the tiles to the left and right are not the same therefore the tile must be a corner.
+        If so, append a bitwise flag for up to 4 bits (0-15) to determine
+        which sides should/should not be included.
+
+            NSEW
+            ----
+            0000 - None
+            0001 - W
+            0010 - E
+            0011 - EW
+            0100 - S
+            0101 - SW
+            0110 - SE
+            0111 - SEW
+            1000 - N
+            1001 - NW
+            1010 - NE
+            1011 - NEW
+            1100 - NS
+            1101 - NSW
+            1110 - NSE
+            1111 - ALL
+
+        :return: wrapper function
         """
 
-        def update_corner_tl(x: int, y: int, tile_type: TileType):
-            """
-            Check if tile should become a top left corner
-            :param x: x coordinate
-            :param y: y coordinate
-            :param tile_type: the generic type of the tile being compared to, only TileType formats are accepted
-            """
-            if self._map[x][y + 1].tileId == TileID.DBL_WALL_V and self._map[x + 1][y].tileId == TileID.DBL_WALL_H:
-                self._map[x][y].tileId = TileID.DBL_WALL_TL
-                self._map[x][y].rect = pygame.Rect(
-                    (self._map[x][y].x + int(TILE_SIZE / 2), self._map[x][y].y + int(TILE_SIZE / 2)),
-                    (TILE_SIZE, TILE_SIZE))
+        def wrapper(self, tile, *args, **kwargs):
 
-        def update_corner_tr(x: int, y: int, tile_type: TileType):
-            """
-            Check if tile should become a top right corner
-            :param x: x coordinate
-            :param y: y coordinate
-            :param tile_type: the generic type of the tile being compared to, only TileType formats are accepted
-            """
-            if self._map[x][y + 1].tileId == TileID.DBL_WALL_V and self._map[x - 1][y].tileId == TileID.DBL_WALL_H:
-                self._map[x][y].tileId = TileID.DBL_WALL_TR
-                self._map[x][y].rect = pygame.Rect(
-                    (self._map[x][y].x - int(TILE_SIZE / 2), self._map[x][y].y + int(TILE_SIZE / 2)),
-                    (TILE_SIZE, TILE_SIZE))
+            coord = tile.pos if tile else None
+            if not coord:
+                assert ValueError, "'include_direction' key word not in function parameters"
 
-        def update_corner_bl(x: int, y: int, tile_type: TileType):
-            """
-            Check if tile should become a bottom left corner
-            :param x: x coordinate
-            :param y: y coordinate
-            :param tile_type: the generic type of the tile being compared to, only TileType formats are accepted
-            """
-            if self._map[x][y - 1].tileId == TileID.DBL_WALL_V and self._map[x + 1][y].tileId == TileID.DBL_WALL_H:
-                self._map[x][y].tileId = TileID.DBL_WALL_BL
-                self._map[x][y].rect = pygame.Rect(
-                    (self._map[x][y].x + int(TILE_SIZE / 2), self._map[x][y].y - int(TILE_SIZE / 2)),
-                    (TILE_SIZE, TILE_SIZE))
+            include_adjacent = 0b1111
 
-        def update_corner_br(x: int, y: int, tile_type: TileType):
-            """
-            Check if tile should become a bottom right corner and then update the tile's `tileId` to
-            match the corner id and then add a physical boundary box
-            :param x: x coordinate
-            :param y: y coordinate
-            :param tile_type: the generic type of the tile being compared to, only TileType formats are accepted
-            """
-            if self._map[x][y - 1].tileId == TileID.DBL_WALL_V and self._map[x - 1][y].tileId == TileID.DBL_WALL_H:
-                self._map[x][y].tileId = TileID.DBL_WALL_BR
-                self._map[x][y].rect = pygame.Rect(
-                    (self._map[x][y].x - int(TILE_SIZE / 2), self._map[x][y].y - int(TILE_SIZE / 2)),
-                    (TILE_SIZE, TILE_SIZE))
+            if coord[0] == 0:
+                if coord[1] == 0:
+                    include_adjacent = 0b0110
+                elif coord[1] == (WINDOW_TILE_HEIGHT - 1):
+                    include_adjacent = 0b1010
+                else:
+                    include_adjacent = 0b0111
+            elif coord[1] == 0:
+                if coord[0] == 0:
+                    include_adjacent = 0b0110
+                elif coord[0] == (WINDOW_TILE_HEIGHT - 1):
+                    include_adjacent = 0b0101
+                else:
+                    include_adjacent = 0b1110
+            elif coord[0] == (WINDOW_TILE_WIDTH - 1):
+                if coord[1] == 0:
+                    include_adjacent = 0b0101
+                elif coord[1] == (WINDOW_TILE_HEIGHT - 1):
+                    include_adjacent = 0b1001
+                else:
+                    include_adjacent = 0b1101
+            elif coord[1] == (WINDOW_TILE_WIDTH - 1):
+                if coord[0] == 0:
+                    include_adjacent = 0b1010
+                elif coord[0] == (WINDOW_TILE_HEIGHT - 1):
+                    include_adjacent = 0b1001
+                else:
+                    include_adjacent = 0b1011
+            else:
+                assert Exception, "tile is invalid, coordinates do not match any grid value"
 
-        def compareSides(x: int, y: int, tileType: TileType, includeTop: bool = True, includeLeft: bool = True,
-                         includeBottom: bool = True, includeRight: bool = True):
-            """
-            Compare tiles adjacent to current tile
+            func(include_adjacent=include_adjacent)
 
-            Compare and change the current tile to a speific corner tile depending on the direction
-            adjacent tiles are facing. This applies to straight and/or corner tiles of any tile type
+        return wrapper
 
-            :param x: x coordinate
-            :param y: y coordinate
-            :param tileType: the type tile, e.g. DBL_WALL AND WALL
-            :param includeTop: should the top adjacent tile be included when comparing
-            :param includeLeft: should the left adjacent tile be included when comparing
-            :param includeBottom: should the bottom adjacent tile be included when comparing
-            :param includeRight: should the right adjacent tile be included when comparing
-            :return:
-            """
+    @index_range
+    def __correct_dbl_wall(self, tile, include_adjacent=None):
 
-            # check whether adjacent tiles would exist
-            top = self._map[x][y - 1].tileId == TileID.DBL_WALL_V if includeTop else False
-            left = self._map[x - 1][y].tileId == TileID.DBL_WALL_H if includeLeft else False
-            bottom = self._map[x][y + 1].tileId == TileID.DBL_WALL_V if includeBottom else False
-            right = self._map[x + 1][y].tileId == TileID.DBL_WALL_H if includeRight else False
+        x = tile[0]
+        y = tile[1]
 
-            if top and left:
-                update_corner_br(x, y, tileType)
-            if top and right:
-                update_corner_bl(x, y, tileType)
-            if bottom and left:
-                update_corner_tr(x, y, tileType)
-            if bottom and right:
-                update_corner_tl(x, y, tileType)
+        if include_adjacent == 0b1111:  # ALL
+            # TODO: fix
+            pass
+        elif include_adjacent == 0b0011:  # EW
+            tile.tile_id = TileID.DBL_WALL_H
+        elif include_adjacent == 0b0101:  # SW
+            tile.tile_id = TileID.DBL_WALL_BL
+        elif include_adjacent == 0b0110:  # SE
+            tile.tile_id = TileID.DBL_WALL_BR
+        elif include_adjacent == 0b0111:  # SEW
+            if self.__tiles[x - 1][y].tile_type == TileType.DBL_WALL \
+                    and self.__tiles[x][y + 1].tile_type == TileType.DBL_WALL:
+                tile.tile_id = TileID.DBL_WALL_TR
+            elif self.__tiles[x + 1][y].tile_type == TileType.DBL_WALL \
+                    and self.__tiles[x][y + 1].tile_type == TileType.DBL_WALL:
+                tile.tile_id = TileID.DBL_WALL_TL
+            elif self.__tiles[x + 1][y].tile_type == TileType.DBL_WALL \
+                    and self.__tiles[x - 1][y].tile_type == TileType.DBL_WALL:
+                tile.tile_id = TileID.DBL_WALL_H
+        elif include_adjacent == 0b1001:  # NW
+            tile.tile_id = TileID.DBL_WALL_TL
+        elif include_adjacent == 0b1010:  # NE
+            tile.tile_id = TileID.DBL_WALL_TR
+        elif include_adjacent == 0b1011:  # NEW
+            if self.__tiles[x - 1][y].tile_type == TileType.DBL_WALL \
+                    and self.__tiles[x][y - 1].tile_type == TileType.DBL_WALL:
+                tile.tile_id = TileID.DBL_WALL_BR
+            elif self.__tiles[x + 1][y].tile_type == TileType.DBL_WALL \
+                    and self.__tiles[x][y - 1].tile_type == TileType.DBL_WALL:
+                tile.tile_id = TileID.DBL_WALL_BL
+            elif self.__tiles[x + 1][y].tile_type == TileType.DBL_WALL \
+                    and self.__tiles[x - 1][y].tile_type == TileType.DBL_WALL:
+                tile.tile_id = TileID.DBL_WALL_H
+        elif include_adjacent == 0b1100:  # NS
+            tile.tile_id = TileID.DBL_WALL_V
+        elif include_adjacent == 0b1101:  # NSW
+            if self.__tiles[x - 1][y].tile_type == TileType.DBL_WALL \
+                    and self.__tiles[x][y - 1].tile_type == TileType.DBL_WALL:
+                tile.tile_id = TileID.DBL_WALL_BR
+            elif self.__tiles[x - 1][y].tile_type == TileType.DBL_WALL \
+                    and self.__tiles[x][y + 1].tile_type == TileType.DBL_WALL:
+                tile.tile_id = TileID.DBL_WALL_TR
+            elif self.__tiles[x][y + 1].tile_type == TileType.DBL_WALL \
+                    and self.__tiles[x][y - 1].tile_type == TileType.DBL_WALL:
+                tile.tile_id = TileID.DBL_WALL_V
+        elif include_adjacent == 0b1110:  # NSE
+            if self.__tiles[x + 1][y].tile_type == TileType.DBL_WALL \
+                    and self.__tiles[x][y - 1].tile_type == TileType.DBL_WALL:
+                tile.tile_id = TileID.DBL_WALL_TL
+            elif self.__tiles[x - 1][y].tile_type == TileType.DBL_WALL \
+                    and self.__tiles[x][y + 1].tile_type == TileType.DBL_WALL:
+                tile.tile_id = TileID.DBL_WALL_TR
+            elif self.__tiles[x][y + 1].tile_type == TileType.DBL_WALL \
+                    and self.__tiles[x][y - 1].tile_type == TileType.DBL_WALL:
+                tile.tile_id = TileID.DBL_WALL_V
 
-        for x, row in enumerate(self._map):
-            for y, tile in enumerate(row):
-                if tile == TileType.DBL_CORNER:
+        return tile
 
-                    if x == 0:
-                        if y == 0:
-                            compareSides(x, y, TileType.DBL_WALL, includeTop=False, includeLeft=False)
-                        if y == (self.height - 1):
-                            compareSides(x, y, TileType.DBL_WALL, includeBottom=False, includeLeft=False)
-                        else:
-                            compareSides(x, y, TileType.DBL_WALL, includeLeft=False)
-                    elif x == (self.width - 1):
-                        if y == 0:
-                            compareSides(x, y, TileType.DBL_WALL, includeTop=False, includeRight=False)
-                        if y == (self.height - 1):
-                            compareSides(x, y, TileType.DBL_WALL, includeBottom=False, includeRight=False)
-                        else:
-                            compareSides(x, y, TileType.DBL_WALL, includeRight=False)
-                    elif y == 0:
-                        if x == 0:
-                            compareSides(x, y, TileType.DBL_WALL, includeTop=False, includeLeft=False)
-                        if x == (self.width - 1):
-                            compareSides(x, y, TileType.DBL_WALL, includeTop=False, includeRight=False)
-                        else:
-                            compareSides(x, y, TileType.DBL_WALL, includeTop=False)
-                    elif y == (self.height - 1):
-                        if x == 0:
-                            compareSides(x, y, TileType.DBL_WALL, includeBottom=False, includeLeft=False)
-                        if x == (self.width - 1):
-                            compareSides(x, y, TileType.DBL_WALL, includeBottom=False, includeRight=False)
-                        else:
-                            compareSides(x, y, TileType.DBL_WALL, includeBottom=False)
-                    else:
-                        compareSides(x, y, TileType.DBL_WALL)
+    def __gen_tile_ids(self):
+        """
+        Generate tile IDs for each tile based on the elements of the map and how each tile
+        is positioned against each other.
+        :return:
+        """
+        for y, rows in self.__tiles:
+            for x, tile in rows:
+                if tile.tile_type == TileType.DBL_WALL:
+                    self.__tiles[x][y] = self.__correct_dbl_wall(tile)
+
+    def __iter__(self):
+        return iter(self.__tiles)
 
     def __getitem__(self, item):
-        return self._map[item]
+        if isinstance(item, int):
+            if item <= (WINDOW_TILE_WIDTH - 1):
+                return self.__tiles[item]
+            else:
+                assert IndexError, f"coordinate of {item} is out of range, x must be between " \
+                                   f"0-{WINDOW_TILE_WIDTH} and y 0-{WINDOW_TILE_HEIGHT}"
+        elif isinstance(item, slice):
+            if item.stop <= (WINDOW_TILE_WIDTH - 1):
+                return self.__tiles[item]
+            else:
+                assert IndexError, f"coordinate of {item} is out of range, x must be between " \
+                                   f"0-{WINDOW_TILE_WIDTH} and y 0-{WINDOW_TILE_HEIGHT}"
+        else:
+            assert TypeError, "coordinate index must be an int in the form: coord[int] or coord[int][int]"
+
+
+
+x = None
+def setX(func: ()):
+    global x
+    x = func
+
+setX(lambda x: x * 10)
+print(x(10))

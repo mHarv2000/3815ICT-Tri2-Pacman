@@ -1,79 +1,48 @@
 import math
-
 import pygame
-
-import consts as ut
-from consts import TILE_SIZE
+from consts import TileType, TileID, TileAttr, TILE_SIZE
 
 
 class Tile:
 
-    center: ut.Point
-
-    def __init__(self, x_pos: ut.Coord, y_pos: ut.Coord, grid_pos_x: int,
-                 grid_pos_y: int, tileType=None, tileId=None, tileAttr=None):
-        self._pos = [x_pos, y_pos]
-        self._grid_pos = [grid_pos_x, grid_pos_y]
-        self.center = [x_pos + float(TILE_SIZE / 2),
-                      y_pos + float(TILE_SIZE / 2)]
-        self.rect = pygame.Rect((grid_pos_x, grid_pos_y), (TILE_SIZE, TILE_SIZE))
-
-        self.tileType = tileType
-        self.tileId = tileId
-        self.tileAttr = tileAttr
-
-    @property
-    def pos_x(self):
-        return self._pos[0]
-
-    @property
-    def pos_y(self):
-        return self._pos[1]
+    def __init__(self, pos: tuple, grid_pos: tuple, tile_type: TileType = None,
+                 tile_id: TileID = None, tile_attr: TileAttr = None):
+        self.__pos = pos
+        self.__grid_pos = grid_pos
+        self.__center = [pos[0] + float(TILE_SIZE / 2),
+                         pos[1] + float(TILE_SIZE / 2)]
+        self.rect = pygame.Rect(pos, (TILE_SIZE, TILE_SIZE))
+        self.tile_type = tile_type
+        self.tile_id = tile_id
+        self.tile_attr = tile_attr
 
     @property
     def x(self):
-        return self._grid_pos[0]
+        return self.__grid_pos[0]
 
     @property
     def y(self):
-        return self._grid_pos[1]
+        return self.__grid_pos[1]
+
+    @property
+    def pos(self):
+        return self.__pos
+
+    @property
+    def center(self):
+        return self.__center
 
     def distance(self, other):
         x = math.pow(other.center[0] - self.center[0], 2)
         y = math.pow(other.center[1] - self.center[1], 2)
         return math.sqrt(x + y)
 
-    def __repr__(self):
-        return f"<{self.tileType}|{self.tileId}: pos={self._pos} grid_pos={self._grid_pos}>"
+    def __getitem__(self, item):
+        if item == (0 or 1):
+            return self.__pos[item]
 
-    def __getitem__(self, item: slice):
-        if not isinstance(item, int) and item is not (0 or 1):
-            assert IndexError, "only x and y axis are supported (0 and 1)"
-        return self._grid_pos[item]
+    def __repr__(self):
+        return f"<{self.tile_type} ({self.tile_id}) at {self.__pos} ({self.__grid_pos})>"
 
     def __eq__(self, other):
-        return self.tileType == other
-
-    def __add__(self, other):
-        if isinstance(other, self):
-            self._grid_pos[0] += other[0]
-            self._grid_pos[1] += other[1]
-        elif isinstance(other, int):
-            self._grid_pos[0] += other
-            self._grid_pos[1] += other
-        else:
-            assert ValueError, "Addition of non tile objects or " \
-                               "integer values are not allowed"
-        return self
-
-    def __sub__(self, other):
-        if isinstance(other, self):
-            self._grid_pos[0] -= other[0]
-            self._grid_pos[1] -= other[1]
-        elif isinstance(other, int):
-            self._grid_pos[0] -= other
-            self._grid_pos[1] -= other
-        else:
-            assert ValueError, "Subtraction of non tile objects or " \
-                               "integer values are not allowed"
-        return self
+        return self.tile_type == other

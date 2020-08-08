@@ -1,36 +1,37 @@
 import json
 from enum import Enum, unique
-from typing import NewType
+from typing import NewType, List, Tuple
+
+Coord = NewType('Coord', Tuple[int, int])
+Colour = NewType('Colour', Tuple[int, int, int])
+
 
 data = []
 
 with open('src/data/data.json', 'r') as file:
     data = json.load(file)
 
-# Unique data types
-# X and Y Axis Coordinate [x, y]
-Coord = NewType('Coord', [int, int])
-# more precise coordinate [x.00..., y.00...]
-Point = NewType('Point', [float, float])
-
+# window settings
 IS_FULLSCREEN = data['fullscreen']
+FPS = 15
+
 DIFFICULTY_STEP = data['levelDifficultyStep']
 SIZE_SCALE_PER_STEP = data['levelSizeScalePerStep']
 STATIC_LEVEL = data['staticLevel']
 
-# vars
+# size of display
 WINDOW_WIDTH = 500   # window width in pixels
 WINDOW_HEIGHT = 500      # window height in pixels
 WINDOW_TILE_WIDTH = data['tileWidth']
 WINDOW_TILE_HEIGHT = data['tileHeight']
 
-TILE_SIZE = WINDOW_HEIGHT // (WINDOW_TILE_HEIGHT + 5)
+# miscellaneous
+TILE_SIZE = int(WINDOW_HEIGHT // WINDOW_TILE_HEIGHT)
 SCENE_WIDTH = int(TILE_SIZE * WINDOW_TILE_WIDTH)
-# scene height = SCREEN_HEIGHT
-
+SCENE_HEIGHT = int(TILE_SIZE * (WINDOW_TILE_HEIGHT - 5))
 ORIGIN = (int(SCENE_WIDTH / 2) - int(SCENE_WIDTH / 2), 0)
-FPS = 15
 
+# colours
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
@@ -51,9 +52,7 @@ class TileType(Enum):
 
     DBL_WALL = 0
     WALL = 1
-    CORNER = 2
-    DBL_CORNER = 3
-    DOOR = 4
+    DOOR = 2
 
 
 @unique
@@ -82,8 +81,11 @@ class TileID(Enum):
 @unique
 class TileAttr(Enum):
 
-    GHOST_SPAWN = 0
-    GHOST_FLEE = 1
+    PACMAN_SPAWN = 0
+    GHOST_SPAWN = 1
+    GHOST_FLEE = 2
+    TELEPORT_L = 3
+    TELEPORT_R = 4
 
 
 @unique
