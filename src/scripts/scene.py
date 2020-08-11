@@ -17,7 +17,7 @@ class Grid:
     grid and a back button to the left.
     """
 
-    def __init__(self, window_h, scene_tile_w, scene_tile_h, gen_type):
+    def __init__(self, window_h: int, scene_tile_w: int, scene_tile_h: int, gen_type: GenType):
         """
         :param window_h: window height, should equal WINDOW_H
         :type window_h: int
@@ -28,7 +28,6 @@ class Grid:
         :param gen_type: generation type
         :type gen_type: GenType
         """
-        self.__gen_type = gen_type
         if gen_type == GenType.SQUAREGRID:
             self._scene_tile_w = scene_tile_w
             self._scene_tile_h = scene_tile_h
@@ -177,7 +176,6 @@ class Tile:
     def compare_type(self, other) -> bool:
         """
         compare Tile type
-
         :param other: Tile object
         :type other: Tile
         :returns: True/False
@@ -189,7 +187,6 @@ class Tile:
     def compare_id(self, other) -> bool:
         """
         compare Tile ID
-
         :param other: Tile object
         :type other: Tile
         :returns: True/False
@@ -201,7 +198,6 @@ class Tile:
     def compare_attr(self, other) -> bool:
         """
         compare Tile attribute
-
         :param other: Tile object
         :type other: Tile
         :returns: True/False
@@ -310,9 +306,15 @@ class TileMap(Grid):
             return self.__tiles[x][y + 1]
         return self.__tiles[x][y]
 
-    def set_active_tile(self, coord: Tuple[int, int]) -> None:
-        """ set active tile to pacman's position """
-        self.__active_tile = self.__pacman
+    def render(self, display):
+        """
+        render controller for rendering every thing on the scene
+        :param display: current pygame display
+        :type display: pygame.Surface
+        :return:
+        """
+        # TODO: make render function
+        ...
 
     def __getitem__(self, item):
         if not isinstance(item, int):

@@ -1,11 +1,7 @@
 import json
 import os
 from enum import Enum, unique
-from typing import NewType, Tuple
-import pygame
 
-Coord = NewType('Coord', Tuple[int, int])   # x-axis, y-axis
-Colour = NewType('Colour', Tuple[int, int, int])    # RGB colour (_, _, _)s
 
 with open(os.path.join('..', 'data', 'data.json'), 'r') as file:
     data = json.load(file)['settings']
@@ -20,6 +16,7 @@ except Exception as err:
     raise Exception("An unexpected error occurred while reading data.json:\n%s" % err)
 finally:
     del data
+
 
 @unique
 class GenType(Enum):

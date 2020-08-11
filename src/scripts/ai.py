@@ -1,4 +1,6 @@
 import glob
+import pygame
+from typing import Tuple
 from src.scripts.consts import *
 
 
@@ -10,17 +12,14 @@ class Character(pygame.sprite.Sprite):
     display to render and update the character each frame
     """
 
+    # noinspection PyShadowingNames
     def __init__(self, x: int, y: int, speed: float, frames_path: str):
         """
-        :param lx: local x coordinate
-        :type lx: int
-        :param ly: local y coordinate
-        :type lx: int
-        :param gx: grid x coordinate
-        :type gx: int
-        :param gy: grid y coordinate
-        :type gx: int
-        :param speed: the number of tiles pacman travels every second
+        :param x: local x coordinate
+        :type x: int
+        :param y: local y coordinate
+        :type x: int
+        :param speed: how many tiles are travelled per second
         :type speed: float
         :param frames_path: path to directory containing the png images used for character animation, animation is
                             generated based on the order of the images. path must end with /*.png as only png images
@@ -56,7 +55,21 @@ class Character(pygame.sprite.Sprite):
             raise ValueError("direction must be a Direction Enum value; NORTH, SOUTH, EAST or WEST")
         self._current_direction = value
 
-    def animate(self):
+    @property
+    def pos(self) -> Tuple[int, int]:
+        """ get grid position """
+        return self._x, self._y
+
+    # noinspection PyUnresolvedReferences
+    @pos.setter
+    def pos(self, coords: Tuple[int, int]):
+        """ set grid position """
+        if not isinstance(coords, (int, int)):
+            raise TypeError("coordinates must be a tuple: (0, 0)")
+        self._x = coords[0]
+        self._y = coords[1]
+
+    def animate(self) -> None:
         """
         Run Animation Functions
 
@@ -90,7 +103,7 @@ class PacMan(Character):
         """ set current direction to another direction """
         if not isinstance(value, Direction):
             raise ValueError("direction must be a Direction Enum value; NORTH, SOUTH, EAST or WEST")
-        self.rect = self.__rotate(value)
+        self.rect = self.__rotate()
         self._current_direction = value
 
     def animate(self) -> None:
@@ -131,41 +144,33 @@ class Ghost(Character):
 
     def __init__(self, x: int, y: int, speed: float, frames_path: str):
         super(Ghost, self).__init__(x, y, speed, frames_path)
-        if not os.path.exists(frames_path):
-            raise FileExistsError("file path: %s to pacman icons does nto exist" % frames_path)
-        self.images = glob.glob(frames_path)
-        self.__current_direction = Direction.NORTH
-        self.__speed = 10
-        self.__index = 0
-        self.image = self.images[self.__index]
-        self.rect = pygame.Rect(x, y, TILE_SIZE, TILE_SIZE)
 
     def animate(self):
         self.__move()
 
     def __move(self) -> None:
         """ move the ghost in the current direction """
-        if self.__current_direction == Direction.SOUTH and self.image == self.images[0]:
+        if self._current_direction == Direction.SOUTH and self.image == self.images[0]:
             self.image = self.images[1]
-            self.rect.move_ip(0, self.__speed)
-        elif self.__current_direction == Direction.SOUTH and self.image == self.images[1]:
+            self.rect.move_ip(0, self._speed)
+        elif self._current_direction == Direction.SOUTH and self.image == self.images[1]:
             self.image = self.images[0]
-            self.rect.move_ip(0, self.__speed)
-        elif self.__current_direction == Direction.WEST and self.image == self.images[2]:
+            self.rect.move_ip(0, self._speed)
+        elif self._current_direction == Direction.WEST and self.image == self.images[2]:
             self.image = self.images[3]
-            self.rect.move_ip(-self.__speed, 0)
-        elif self.__current_direction == Direction.WEST and self.image == self.images[3]:
+            self.rect.move_ip(-self._speed, 0)
+        elif self._current_direction == Direction.WEST and self.image == self.images[3]:
             self.image = self.images[2]
-            self.rect.move_ip(-self.__speed, 0)
-        elif self.__current_direction == Direction.EAST and self.image == self.images[4]:
+            self.rect.move_ip(-self._speed, 0)
+        elif self._current_direction == Direction.EAST and self.image == self.images[4]:
             self.image = self.images[5]
-            self.rect.move_ip(self.__speed, 0)
-        elif self.__current_direction == Direction.EAST and self.image == self.images[5]:
+            self.rect.move_ip(self._speed, 0)
+        elif self._current_direction == Direction.EAST and self.image == self.images[5]:
             self.image = self.images[4]
-            self.rect.move_ip(self.__speed, 0)
-        elif self.__current_direction == Direction.NORTH and self.image == self.images[6]:
+            self.rect.move_ip(self._speed, 0)
+        elif self._current_direction == Direction.NORTH and self.image == self.images[6]:
             self.image = self.images[7]
-            self.rect.move_ip(0, -self.__speed)
-        elif self.__current_direction == Direction.NORTH and self.image == self.images[7]:
+            self.rect.move_ip(0, -self._speed)
+        elif self._current_direction == Direction.NORTH and self.image == self.images[7]:
             self.image = self.images[6]
-            self.rect.move_ip(0, -self.__speed)
+            self.rect.move_ip(0, -self._speed)

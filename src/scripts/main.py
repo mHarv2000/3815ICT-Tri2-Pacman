@@ -1,6 +1,6 @@
 import os
 import pygame
-from src.scripts.scene import Grid
+from src.scripts.consts import WINDOW_W, WINDOW_H
 from src.scripts.ui import Label
 
 
@@ -9,9 +9,8 @@ pygame.font.init()
 pygame.display.set_caption('Pac Man')
 icon = pygame.image.load(os.path.join('..', 'img', 'pacman', 'pacman_0.png'))
 pygame.display.set_icon(icon)
-display = pygame.display.set_mode((500, 500))
+display = pygame.display.set_mode((WINDOW_W, WINDOW_H))
 lrg_font = pygame.font.Font(os.path.join('..', 'font', 'BarcadeBrawlRegular.ttf'), 20)
-med_font = pygame.font.Font(os.path.join('..', 'font', 'BarcadeBrawlRegular.ttf'), 16)
 sml_font = pygame.font.Font(os.path.join('..', 'font', 'BarcadeBrawlRegular.ttf'), 11)
 
 del icon
@@ -67,11 +66,7 @@ def settings():
                 running = False
 
         display.fill((0, 0, 0))
-
-        # render back button
-        pygame.draw.rect(display, (0, 0, 0), back_btn.rect)
-        display.blit(back_btn.text, back_btn.pos)
-
+        back_btn.render(display)
         pygame.display.update()
 
     return 0
@@ -91,10 +86,7 @@ def start_game():
             elif event.type == pygame.QUIT:
                 running = False
         display.fill((0, 0, 0))
-
-        pygame.draw.rect(display, (0, 0, 0), back_btn.rect)
-        display.blit(back_btn.text, back_btn.pos)
-
+        back_btn.render(display)
         pygame.display.update()
 
     return 0

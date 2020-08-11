@@ -1,8 +1,8 @@
 {
   "settings": {
     "fullscreen": false,
-    "windowWidth": 800,
-    "windowHeight": 800,
+    "windowWidth": 500,
+    "windowHeight": 500,
     "levelDifficultyStep": 10,
     "levelScalePerStep": 1,
     "tileHeight": 36,

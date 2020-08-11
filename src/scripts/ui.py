@@ -72,6 +72,16 @@ class Label:
 		""" get x and y position """
 		return self.__text_pos
 
+	def render(self, display) -> None:
+		"""
+		display the elements to the screen
+		:param display: the current pygame display
+		:type display: pygame.Surface
+		:return:
+		"""
+		pygame.draw.rect(display, (0, 0, 0), self.__rect)
+		display.blit(self.__text, self.__text_pos)
+
 
 class Spinner:
 	"""
@@ -111,8 +121,12 @@ class Spinner:
 		self.__text_pos = (self.__rect.centerx - (self.__text.get_width() // 2),
 		                   self.__rect.centery - (self.__text.get_height() // 2))
 
-	def step(self):
-		""" increase/decrease value by step """
+	def add_step(self, is_positive=True) -> None:
+		"""
+		increase/decrease value by step
+		:param is_positive: should the value be increased (False means decrease)
+		:type is_positive: bool
+		"""
 		self.__value += self.__step
 
 	@property
@@ -155,3 +169,12 @@ class Spinner:
 		                          self.__text.get_height() + 5)
 		self.__text_pos = (self.__rect.centerx - (self.__text.get_width() // 2),
 		                   self.__rect.centery - (self.__text.get_height() // 2))
+
+	def render(self, display) -> None:
+		"""
+		display the elements to the screen
+		:param display: the current pygame display
+		:type display: pygame.Surface
+		:return:
+		"""
+		# TODO: make render function
