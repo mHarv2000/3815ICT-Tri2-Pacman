@@ -1,5 +1,4 @@
 from typing import Tuple
-
 import pygame
 
 
@@ -7,10 +6,7 @@ class Label:
 	"""
 	Label/Button UI Element
 
-	A pygame label displaying text which can be used for events. in order to display each element of the
-	label the pygame display must draw the text object and rect seperately. recommended format:
-	pygame.draw.rect(THE_DISPLAY, BACKGROUND_COLOUR, LABEL.get_border())
-	THE_DISPLAY.blit(LABEL.get_text(), LABEL.get_pos())
+	A pygame label displaying text which can be used for events.
 	"""
 
 	def __init__(self, x, y, colour, text_str, padding, font):
@@ -87,8 +83,7 @@ class Spinner:
 	"""
 	Spinner Input UI Element
 
-	A UI Integer input with arrows to increase/decrease the value by a given step amount. Similar to the Label class,
-	each element must be rendered including the rect, arrow_up, arrow_down and text
+	A UI Integer input with arrows to increase/decrease the value by a given step amount
 	"""
 
 	def __init__(self, x, y, value, font, minimum=0, maximum=1, step=1):

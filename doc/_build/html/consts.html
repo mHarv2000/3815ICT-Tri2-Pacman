@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+      <title>Constant Local Variables</title>
+    
+      <link rel="stylesheet" href="_static/pygments.css">
+      <link rel="stylesheet" href="_static/theme.css">
+      <link rel="stylesheet" href="_static/sphinx_press_theme.css">
+      
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+
+      <!-- sphinx script_files -->
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+
+      
+      <script src="_static/theme-vendors.js"></script>
+      <script src="_static/theme.js" defer></script>
+    
+  <link rel="index" title="Index" href="genindex.html" />
+  <link rel="search" title="Search" href="search.html" />
+  <link rel="prev" title="UI Elements" href="ui.html" /> 
+  </head>
+
+  <body>
+    <div id="app" class="theme-container" :class="pageClasses"><navbar @toggle-sidebar="toggleSidebar">
+  <router-link to="index.html" class="home-link">
+    
+      <span class="site-name">PacMan</span>
+    
+  </router-link>
+
+  <div class="links">
+    <navlinks class="can-hide">
+
+
+
+    </navlinks>
+  </div>
+</navbar>
+
+      
+      <div class="sidebar-mask" @click="toggleSidebar(false)">
+      </div>
+        <sidebar @toggle-sidebar="toggleSidebar">
+          
+          <navlinks>
+            
+
+
+
+            
+          </navlinks><div id="searchbox" class="searchbox" role="search">
+  <div class="caption"><span class="caption-text">Quick search</span>
+    <div class="searchformwrapper">
+      <form class="search" action="search.html" method="get">
+        <input type="text" name="q" />
+        <input type="submit" value="Search" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div><div class="sidebar-links" role="navigation" aria-label="main navigation">
+  
+    <div class="sidebar-group">
+      <p class="caption">
+        <span class="caption-text"><a href="index.html#welcome-to-pacman-s-documentation">Contents:</a></span>
+      </p>
+      <ul class="current">
+        
+          <li class="toctree-l1 "><a href="main.html" class="reference internal ">main</a>
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 "><a href="scene.html" class="reference internal ">Scene</a>
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 "><a href="ai.html" class="reference internal ">AI</a>
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 "><a href="ui.html" class="reference internal ">UI Elements</a>
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 current"><a href="#" class="reference internal current">Constant Local Variables</a>
+
+            
+              <ul>
+                
+                  <li class="toctree-l2"><a href="#module-src.scripts.consts" class="reference internal">Constant Local Variables</a></li>
+                
+              </ul>
+            
+          </li>
+
+        
+      </ul>
+    </div>
+  
+</div>
+        </sidebar>
+
+      <page>
+          <div class="body-header" role="navigation" aria-label="navigation">
+  
+  <ul class="breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+    
+    <li>Constant Local Variables</li>
+  </ul>
+  
+
+  <ul class="page-nav">
+  <li class="prev">
+    <a href="ui.html"
+       title="previous chapter">← UI Elements</a>
+  </li>
+</ul>
+  
+</div>
+<hr>
+          <div class="content" role="main">
+            
+  <div class="section" id="module-src.scripts.consts">
+<span id="constant-local-variables"></span><h1>Constant Local Variables<a class="headerlink" href="#module-src.scripts.consts" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="src.scripts.consts.Direction">
+<em class="property">class </em><code class="sig-prename descclassname">src.scripts.consts.</code><code class="sig-name descname">Direction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.consts.Direction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Directions based on compass directions to be used with character classes to calculate their movement and
+path-finding patterns</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="src.scripts.consts.GenType">
+<em class="property">class </em><code class="sig-prename descclassname">src.scripts.consts.</code><code class="sig-name descname">GenType</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.consts.GenType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines what type of tile-map the game will use
+SQUAREGRID  A grid full of square tiles with a simple coordinate system and requires keyboard support for basic</p>
+<blockquote>
+<div><p>up-down-left-right movement</p>
+</div></blockquote>
+<dl class="simple">
+<dt>HEXGRID     Similar to the square grid but with hexagon tiles where every second coordinate on the x-axis is placed</dt><dd><p>lower on the y-axis by half the size of the tile and vice-versa with the y-axis.</p>
+</dd>
+<dt>RANDGRID    An arbitrary graph format where each path branches out in random directions and does not rely on tiles.</dt><dd><p>The grid however extends a basic coordinate system and requires mouse support to move the PacMan object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="src.scripts.consts.TileAttr">
+<em class="property">class </em><code class="sig-prename descclassname">src.scripts.consts.</code><code class="sig-name descname">TileAttr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.consts.TileAttr" title="Permalink to this definition">¶</a></dt>
+<dd><p>An attribute given to tile objects to help with path-finding of PacMan and Ghost path-finding</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="src.scripts.consts.TileID">
+<em class="property">class </em><code class="sig-prename descclassname">src.scripts.consts.</code><code class="sig-name descname">TileID</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.consts.TileID" title="Permalink to this definition">¶</a></dt>
+<dd><p>A specific label given to each tile to tell the game exactly what the tile is.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="src.scripts.consts.TileType">
+<em class="property">class </em><code class="sig-prename descclassname">src.scripts.consts.</code><code class="sig-name descname">TileType</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.consts.TileType" title="Permalink to this definition">¶</a></dt>
+<dd><p>A generic label given to each tile to organise the tiles and help tell which tiles need a specific ID generated.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          <div class="page-nav">
+            <div class="inner"><ul class="page-nav">
+  <li class="prev">
+    <a href="ui.html"
+       title="previous chapter">← UI Elements</a>
+  </li>
+</ul><div class="footer" role="contentinfo">
+      &#169; Copyright 2020, Max Harvey.
+    <br>
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2 with <a href="https://github.com/schettino72/sphinx_press_theme">Press Theme</a>.
+</div>
+            </div>
+          </div>
+      </page>
+    </div>
+    
+    
+  </body>
+</html>

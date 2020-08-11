@@ -3,15 +3,19 @@ import pygame
 from src.scripts.consts import WINDOW_W, WINDOW_H
 from src.scripts.ui import Label
 
+"""
+The pygame display renders each page as a modal. The menu, settings nd start_game functions are in charge
+of running each page and deallocating memory when necessary. 
+"""
 
 pygame.init()
 pygame.font.init()
 pygame.display.set_caption('Pac Man')
-icon = pygame.image.load(os.path.join('..', 'img', 'pacman', 'pacman_0.png'))
+icon = pygame.image.load(os.path.abspath('../src/img/pacman/pacman_0.png'))
 pygame.display.set_icon(icon)
 display = pygame.display.set_mode((WINDOW_W, WINDOW_H))
-lrg_font = pygame.font.Font(os.path.join('..', 'font', 'BarcadeBrawlRegular.ttf'), 20)
-sml_font = pygame.font.Font(os.path.join('..', 'font', 'BarcadeBrawlRegular.ttf'), 11)
+lrg_font = pygame.font.Font(os.path.abspath('../src/font/BarcadeBrawlRegular.ttf'), 20)
+sml_font = pygame.font.Font(os.path.abspath('../src/font/BarcadeBrawlRegular.ttf'), 11)
 
 del icon
 
@@ -21,7 +25,7 @@ def menu():
 
     running = True
     origin = 50, 50
-    logo = pygame.image.load(os.path.join('..', 'img', 'logo', 'logo.png')).convert_alpha()
+    logo = pygame.image.load(os.path.abspath('../src/img/logo/logo.png')).convert_alpha()
     start_game_btn = Label(origin[0], origin[1] + (logo.get_height() + 50), (255, 255, 255), "Start Game", 20, lrg_font)
     settings_btn = Label(origin[0], origin[1] + (logo.get_height() + 100), (255, 255, 255), "Settings", 20, lrg_font)
 
@@ -106,5 +110,5 @@ while True:
         break
 
 pygame.quit()
-exit(0)
+
 

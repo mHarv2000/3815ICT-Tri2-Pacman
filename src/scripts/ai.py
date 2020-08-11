@@ -10,23 +10,21 @@ class Character(pygame.sprite.Sprite):
 
     AI or player controlled sprite with path finding, animation and transform control. Used with an external pygame
     display to render and update the character each frame
+
+    :param x: local x coordinate
+    :type x: int
+    :param y: local y coordinate
+    :type x: int
+    :param speed: how many tiles are travelled per second
+    :type speed: float
+    :param frames_path: path to directory containing the png images used for character animation, animation is
+                        generated based on the order of the images. path must end with /*.png as only png images
+                        are supported
+    :type frames_path: str
     """
 
     # noinspection PyShadowingNames
     def __init__(self, x: int, y: int, speed: float, frames_path: str):
-        """
-        :param x: local x coordinate
-        :type x: int
-        :param y: local y coordinate
-        :type x: int
-        :param speed: how many tiles are travelled per second
-        :type speed: float
-        :param frames_path: path to directory containing the png images used for character animation, animation is
-                            generated based on the order of the images. path must end with /*.png as only png images
-                            are supported
-        :type frames_path: str
-        """
-
         super(Character, self).__init__()
         try:
             self.images = glob.glob(frames_path)
@@ -72,20 +70,32 @@ class Character(pygame.sprite.Sprite):
     def animate(self) -> None:
         """
         Run Animation Functions
-
         animations setup should be used in separate unctions and then called from here
+
         """
         ...
 
 
 class PacMan(Character):
-    """The PacMan Character Controller
+    """
+    The PacMan Character Controller
 
     The PacMan class controls the animation, direction, events and state of the character
     controlled through pygame key-events externally.
-
     -   sprite animation relies on a group of image icons to animate each frame.
     -   pacman movement is updated constantly and may only change direction when an arrow key event is triggered
+
+    :param x: local x coordinate
+    :type x: int
+    :param y: local y coordinate
+    :type x: int
+    :param speed: how many tiles are travelled per second
+    :type speed: float
+    :param frames_path: path to directory containing the png images used for character animation, animation is
+                        generated based on the order of the images. path must end with /*.png as only png images
+                        are supported
+    :type frames_path: str
+
     """
 
     def __init__(self, x: int, y: int, speed: float, frames_path: str):
@@ -132,14 +142,26 @@ class PacMan(Character):
 
 
 class Ghost(Character):
-    """The Ghost Character Controller
+    """
+    The Ghost Character Controller
 
     The Ghost class controls the animation, direction, events and state of the character
     controlled through game events.
-
     -   sprite animation relies on a group of image icons to animate each frame depending on the direction.
     -   ghost movement is updated constantly and may only change when the the route to the pacman's position changes
         or because of game events
+
+    :param x: local x coordinate
+    :type x: int
+    :param y: local y coordinate
+    :type x: int
+    :param speed: how many tiles are travelled per second
+    :type speed: float
+    :param frames_path: path to directory containing the png images used for character animation, animation is
+                        generated based on the order of the images. path must end with /*.png as only png images
+                        are supported
+    :type frames_path: str
+
     """
 
     def __init__(self, x: int, y: int, speed: float, frames_path: str):

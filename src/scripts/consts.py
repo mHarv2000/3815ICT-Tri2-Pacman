@@ -3,7 +3,7 @@ import os
 from enum import Enum, unique
 
 
-with open(os.path.join('..', 'data', 'data.json'), 'r') as file:
+with open(os.path.abspath('../src/data/data.json'), 'r') as file:
     data = json.load(file)['settings']
 try:
     WINDOW_W, WINDOW_H = data[ 'windowWidth' ], data[ 'windowHeight' ]
@@ -87,7 +87,10 @@ class TileAttr(Enum):
 
 @unique
 class Direction(Enum):
-    """ Directions based on a compass """
+    """
+    Directions based on compass directions to be used with character classes to calculate their movement and
+    path-finding patterns
+    """
     NORTH = 0
     SOUTH = 1
     EAST = 2

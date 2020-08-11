@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+      <title>Scene</title>
+    
+      <link rel="stylesheet" href="_static/pygments.css">
+      <link rel="stylesheet" href="_static/theme.css">
+      <link rel="stylesheet" href="_static/sphinx_press_theme.css">
+      
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+
+      <!-- sphinx script_files -->
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+
+      
+      <script src="_static/theme-vendors.js"></script>
+      <script src="_static/theme.js" defer></script>
+    
+  <link rel="index" title="Index" href="genindex.html" />
+  <link rel="search" title="Search" href="search.html" />
+  <link rel="next" title="AI" href="ai.html" />
+  <link rel="prev" title="main" href="main.html" /> 
+  </head>
+
+  <body>
+    <div id="app" class="theme-container" :class="pageClasses"><navbar @toggle-sidebar="toggleSidebar">
+  <router-link to="index.html" class="home-link">
+    
+      <span class="site-name">PacMan</span>
+    
+  </router-link>
+
+  <div class="links">
+    <navlinks class="can-hide">
+
+
+
+    </navlinks>
+  </div>
+</navbar>
+
+      
+      <div class="sidebar-mask" @click="toggleSidebar(false)">
+      </div>
+        <sidebar @toggle-sidebar="toggleSidebar">
+          
+          <navlinks>
+            
+
+
+
+            
+          </navlinks><div id="searchbox" class="searchbox" role="search">
+  <div class="caption"><span class="caption-text">Quick search</span>
+    <div class="searchformwrapper">
+      <form class="search" action="search.html" method="get">
+        <input type="text" name="q" />
+        <input type="submit" value="Search" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div><div class="sidebar-links" role="navigation" aria-label="main navigation">
+  
+    <div class="sidebar-group">
+      <p class="caption">
+        <span class="caption-text"><a href="index.html#welcome-to-pacman-s-documentation">Contents:</a></span>
+      </p>
+      <ul class="current">
+        
+          <li class="toctree-l1 "><a href="main.html" class="reference internal ">main</a>
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 current"><a href="#" class="reference internal current">Scene</a>
+
+            
+              <ul>
+                
+                  <li class="toctree-l2"><a href="#module-src.scripts.scene" class="reference internal">Scene</a></li>
+                
+              </ul>
+            
+          </li>
+
+        
+          <li class="toctree-l1 "><a href="ai.html" class="reference internal ">AI</a>
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 "><a href="ui.html" class="reference internal ">UI Elements</a>
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 "><a href="consts.html" class="reference internal ">Constant Local Variables</a>
+
+            
+          </li>
+
+        
+      </ul>
+    </div>
+  
+</div>
+        </sidebar>
+
+      <page>
+          <div class="body-header" role="navigation" aria-label="navigation">
+  
+  <ul class="breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+    
+    <li>Scene</li>
+  </ul>
+  
+
+  <ul class="page-nav">
+  <li class="prev">
+    <a href="main.html"
+       title="previous chapter">← main</a>
+  </li>
+  <li class="next">
+    <a href="ai.html"
+       title="next chapter">AI →</a>
+  </li>
+</ul>
+  
+</div>
+<hr>
+          <div class="content" role="main">
+            
+  <div class="section" id="module-src.scripts.scene">
+<span id="scene"></span><h1>Scene<a class="headerlink" href="#module-src.scripts.scene" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="src.scripts.scene.Grid">
+<em class="property">class </em><code class="sig-prename descclassname">src.scripts.scene.</code><code class="sig-name descname">Grid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">window_h</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">scene_tile_w</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">scene_tile_h</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">gen_type</span><span class="p">:</span> <span class="n"><a class="reference internal" href="consts.html#src.scripts.consts.GenType" title="src.scripts.consts.GenType">src.scripts.consts.GenType</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.scene.Grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Basic coordinate system for the game scene</p>
+<p>The grid relies on two types of coordinates; grid coordinates and local coordinates. Grid coordinates are the
+literal scene coordinates on the screen where as the local coordinates refer to the index of the tiles. for example:
+assuming the tile size is 20, the grid position of the tile at local position (1, 3) is (20, 60). The origin (0, 0)
+is placed at the grid position equal to (TILE_SIZE, TILESIZE * 3) to save room for displaying the score above the
+grid and a back button to the left.</p>
+<dl class="py method">
+<dt id="src.scripts.scene.Grid.gpos">
+<code class="sig-name descname">gpos</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">y</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.scene.Grid.gpos" title="Permalink to this definition">¶</a></dt>
+<dd><p>get grid position from full or partial local coordinate
+:param x: x local coordinate (not grid coordinate)
+:param y: y local coordinate (not grid coordinate)
+:return: all grid coordinates, row of grid coordinates or a single coordinate</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.scene.Grid.lpos">
+<code class="sig-name descname">lpos</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">y</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.scene.Grid.lpos" title="Permalink to this definition">¶</a></dt>
+<dd><p>get grid position from full or partial local coordinate
+:param x: x local coordinate (not grid coordinate)
+:param y: y local coordinate (not grid coordinate)
+:return: all grid coordinates, row of grid coordinates or a single coordinate</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="src.scripts.scene.Tile">
+<em class="property">class </em><code class="sig-prename descclassname">src.scripts.scene.</code><code class="sig-name descname">Tile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lx</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">ly</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">gx</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">gy</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">tile_size</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">tile_type</span><span class="p">:</span> <span class="n"><a class="reference internal" href="consts.html#src.scripts.consts.TileType" title="src.scripts.consts.TileType">src.scripts.consts.TileType</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">tile_id</span><span class="p">:</span> <span class="n"><a class="reference internal" href="consts.html#src.scripts.consts.TileID" title="src.scripts.consts.TileID">src.scripts.consts.TileID</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">tile_attr</span><span class="p">:</span> <span class="n"><a class="reference internal" href="consts.html#src.scripts.consts.TileAttr" title="src.scripts.consts.TileAttr">src.scripts.consts.TileAttr</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.scene.Tile" title="Permalink to this definition">¶</a></dt>
+<dd><p>A cell representing a physical coordinate on the scene plane.</p>
+<p>Each tile has a tile type to identify it’s generic type, an ID to identify it’s specific type and an
+Attribute to help with AI pathfinding. The Tile represents a physical local coordinate on the grid that is either
+transversable (player can walk on) or non-transversable.</p>
+<dl class="py method">
+<dt id="src.scripts.scene.Tile.attr">
+<em class="property">property </em><code class="sig-name descname">attr</code><a class="headerlink" href="#src.scripts.scene.Tile.attr" title="Permalink to this definition">¶</a></dt>
+<dd><p>get tile attribute</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.scene.Tile.compare_attr">
+<code class="sig-name descname">compare_attr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#src.scripts.scene.Tile.compare_attr" title="Permalink to this definition">¶</a></dt>
+<dd><p>compare Tile attribute
+:param other: Tile object
+:type other: Tile
+:returns: True/False</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.scene.Tile.compare_id">
+<code class="sig-name descname">compare_id</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#src.scripts.scene.Tile.compare_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>compare Tile ID
+:param other: Tile object
+:type other: Tile
+:returns: True/False</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.scene.Tile.compare_type">
+<code class="sig-name descname">compare_type</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#src.scripts.scene.Tile.compare_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>compare Tile type
+:param other: Tile object
+:type other: Tile
+:returns: True/False</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.scene.Tile.gpos">
+<em class="property">property </em><code class="sig-name descname">gpos</code><a class="headerlink" href="#src.scripts.scene.Tile.gpos" title="Permalink to this definition">¶</a></dt>
+<dd><p>get current grid position</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.scene.Tile.gx">
+<em class="property">property </em><code class="sig-name descname">gx</code><a class="headerlink" href="#src.scripts.scene.Tile.gx" title="Permalink to this definition">¶</a></dt>
+<dd><p>get current grid position’s x coordinate</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.scene.Tile.gy">
+<em class="property">property </em><code class="sig-name descname">gy</code><a class="headerlink" href="#src.scripts.scene.Tile.gy" title="Permalink to this definition">¶</a></dt>
+<dd><p>get current grid position’s y coordinate</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.scene.Tile.id">
+<em class="property">property </em><code class="sig-name descname">id</code><a class="headerlink" href="#src.scripts.scene.Tile.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>get tile ID</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.scene.Tile.lx">
+<em class="property">property </em><code class="sig-name descname">lx</code><a class="headerlink" href="#src.scripts.scene.Tile.lx" title="Permalink to this definition">¶</a></dt>
+<dd><p>get current grid position’s x coordinate</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.scene.Tile.ly">
+<em class="property">property </em><code class="sig-name descname">ly</code><a class="headerlink" href="#src.scripts.scene.Tile.ly" title="Permalink to this definition">¶</a></dt>
+<dd><p>get current grid position’s y coordinate</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.scene.Tile.pos">
+<em class="property">property </em><code class="sig-name descname">pos</code><a class="headerlink" href="#src.scripts.scene.Tile.pos" title="Permalink to this definition">¶</a></dt>
+<dd><p>get current local position</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.scene.Tile.type">
+<em class="property">property </em><code class="sig-name descname">type</code><a class="headerlink" href="#src.scripts.scene.Tile.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>get tile type</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="src.scripts.scene.TileMap">
+<em class="property">class </em><code class="sig-prename descclassname">src.scripts.scene.</code><code class="sig-name descname">TileMap</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">width_in_tiles</span></em>, <em class="sig-param"><span class="n">height_in_tiles</span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.scene.TileMap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grid Container and Manager of Game Elements</p>
+<p>Generates a grid of tiles based on the coords in the grid superclass and then creates pacman, the ghosts and
+the scoreboards. The TileMap takes care of ghost pathfinding and pacman events that may trigger events outside the
+class.</p>
+<dl class="py method">
+<dt id="src.scripts.scene.TileMap.above">
+<code class="sig-name descname">above</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">y</span><span class="p">:</span> <span class="n">int</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#src.scripts.scene.Tile" title="src.scripts.scene.Tile">src.scripts.scene.Tile</a><a class="headerlink" href="#src.scripts.scene.TileMap.above" title="Permalink to this definition">¶</a></dt>
+<dd><p>get tile above the active tile
+:param x: x local coordinate
+:param y: y local coordinate
+:return: the tile object</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.scene.TileMap.below">
+<code class="sig-name descname">below</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">y</span><span class="p">:</span> <span class="n">int</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#src.scripts.scene.Tile" title="src.scripts.scene.Tile">src.scripts.scene.Tile</a><a class="headerlink" href="#src.scripts.scene.TileMap.below" title="Permalink to this definition">¶</a></dt>
+<dd><p>get tile below the active tile
+:param x: x local coordinate
+:param y: y local coordinate
+:return: the tile object</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.scene.TileMap.left_of">
+<code class="sig-name descname">left_of</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">y</span><span class="p">:</span> <span class="n">int</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#src.scripts.scene.Tile" title="src.scripts.scene.Tile">src.scripts.scene.Tile</a><a class="headerlink" href="#src.scripts.scene.TileMap.left_of" title="Permalink to this definition">¶</a></dt>
+<dd><p>get tile to the left of the active tile
+:param x: x local coordinate
+:param y: y local coordinate
+:return: the tile object</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.scene.TileMap.render">
+<code class="sig-name descname">render</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">display</span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.scene.TileMap.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>render controller for rendering every thing on the scene
+:param display: current pygame display
+:type display: pygame.Surface
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.scene.TileMap.right_of">
+<code class="sig-name descname">right_of</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">y</span><span class="p">:</span> <span class="n">int</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#src.scripts.scene.Tile" title="src.scripts.scene.Tile">src.scripts.scene.Tile</a><a class="headerlink" href="#src.scripts.scene.TileMap.right_of" title="Permalink to this definition">¶</a></dt>
+<dd><p>get tile to the right of the active tile
+:param x: x local coordinate
+:param y: y local coordinate
+:return: the tile object</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          <div class="page-nav">
+            <div class="inner"><ul class="page-nav">
+  <li class="prev">
+    <a href="main.html"
+       title="previous chapter">← main</a>
+  </li>
+  <li class="next">
+    <a href="ai.html"
+       title="next chapter">AI →</a>
+  </li>
+</ul><div class="footer" role="contentinfo">
+      &#169; Copyright 2020, Max Harvey.
+    <br>
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2 with <a href="https://github.com/schettino72/sphinx_press_theme">Press Theme</a>.
+</div>
+            </div>
+          </div>
+      </page>
+    </div>
+    
+    
+  </body>
+</html>
