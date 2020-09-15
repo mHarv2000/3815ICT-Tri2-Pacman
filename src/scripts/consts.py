@@ -3,21 +3,6 @@ import os
 from enum import Enum, unique
 
 
-with open(os.path.abspath('../src/data/data.json'), 'r') as file:
-    data = json.load(file)['settings']
-try:
-    WINDOW_W, WINDOW_H = data[ 'windowWidth' ], data[ 'windowHeight' ]
-    WIDTH_TILES, HEIGHT_TILES = data[ 'tileWidth' ], data[ 'tileHeight' ]
-    DIFF_STEP = int(data["levelDifficultyStep"])
-    SCALE_PER_STEP = int(data["levelScalePerStep"])
-    TILE_SIZE = round(WINDOW_H / HEIGHT_TILES)
-    FPS = int(data['fps'])
-except Exception as err:
-    raise Exception("An unexpected error occurred while reading data.json:\n%s" % err)
-finally:
-    del data
-
-
 @unique
 class GenType(Enum):
     """
@@ -40,12 +25,11 @@ class TileType(Enum):
     """
     A generic label given to each tile to organise the tiles and help tell which tiles need a specific ID generated.
     """
-    DBL_WALL = 0
-    DBL_CORNER = 1
-    WALL = 2
-    CORNER = 3
-    DOOR = 4
-    TELEPORT = 5
+    NONE = 0
+    WALL = 1
+    DBL_WALL = 2
+    DOOR = 3
+    OTHER = 4
 
 
 @unique
@@ -60,39 +44,24 @@ class TileID(Enum):
     DBL_WALL_BL = 4  # double wall bottom-left tile
     DBL_WALL_H = 5  # double wall horizontal tile
     DBL_WALL_V = 6  # double wall vertical tile
-    WALL_TL = 7     # wall top-left tile
-    WALL_TR = 8     # wall top-right tile
-    WALL_BR = 9     # wall bottom-right tile
-    WALL_BL = 10    # wall bottom-left tile
-    WALL_H = 11     # wall horizontal tile
-    WALL_V = 12     # wall vertical tile
-    FRUIT = 13      # fruit tile
+    WALL_TL = 7  # wall top-left tile
+    WALL_TR = 8  # wall top-right tile
+    WALL_BR = 9  # wall bottom-right tile
+    WALL_BL = 10  # wall bottom-left tile
+    WALL_H = 11  # wall horizontal tile
+    WALL_V = 12  # wall vertical tile
+    FRUIT = 13  # fruit tile
     ENERGIZER = 14  # energizer tile
-    CHERRY = 15     # cherry tile
-    DOOR_H = 16     # door horizontal tile
-    DOOR_V = 17     # door vertical tile
-    TELEPORT_L = 18     # teleport tile
-    TELEPORT_R = 19     # teleport tile
+    CHERRY = 15  # cherry tile
+    DOOR_H = 16  # door horizontal tile
+    DOOR_V = 17  # door vertical tile
 
 
 @unique
 class TileAttr(Enum):
     """
-    An attribute given to tile objects to help with path-finding of PacMan and Ghost path-finding
+    An attribute given to tile objects to help with path-finding
     """
     PACMAN_SPAWN = 0
     GHOST_SPAWN = 1
     GHOST_FLEE = 2
-
-
-@unique
-class Direction(Enum):
-    """
-    Directions based on compass directions to be used with character classes to calculate their movement and
-    path-finding patterns
-    """
-    NORTH = 0
-    SOUTH = 1
-    EAST = 2
-    WEST = 3
-

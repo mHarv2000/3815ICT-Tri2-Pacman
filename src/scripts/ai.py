@@ -2,6 +2,7 @@ import glob
 import pygame
 from typing import Tuple
 from src.scripts.consts import *
+from src.scripts.misc import Direction
 
 
 class Character(pygame.sprite.Sprite):
@@ -33,7 +34,7 @@ class Character(pygame.sprite.Sprite):
             raise FileExistsError("file path to directory: '%s' does not exist" % err)
         self._x = x
         self._y = y
-        self._current_direction = Direction.SOUTH
+        self._current_direction = 's'
         self._speed = (speed * TILE_SIZE) // FPS
         if self._speed == 0:
             self._speed = 1
@@ -50,7 +51,7 @@ class Character(pygame.sprite.Sprite):
     def direction(self, value: Direction):
         """ set current direction to another direction """
         if not isinstance(value, Direction):
-            raise ValueError("direction must be a Direction Enum value; NORTH, SOUTH, EAST or WEST")
+            raise ValueError("direction must be a Direction object")
         self._current_direction = value
 
     @property
@@ -70,7 +71,7 @@ class Character(pygame.sprite.Sprite):
     def animate(self) -> None:
         """
         Run Animation Functions
-        animations setup should be used in separate unctions and then called from here
+        animations setup should be used in separate functions and then called from here
 
         """
         ...
@@ -112,7 +113,7 @@ class PacMan(Character):
     def direction(self, value: Direction):
         """ set current direction to another direction """
         if not isinstance(value, Direction):
-            raise ValueError("direction must be a Direction Enum value; NORTH, SOUTH, EAST or WEST")
+            raise ValueError("direction must be a Direction object")
         self.rect = self.__rotate()
         self._current_direction = value
 
@@ -131,13 +132,13 @@ class PacMan(Character):
         """ move and rotate pacman in the current direction """
         self._gx = self.rect.x
         self._gy = self.rect.y
-        if self._current_direction == Direction.NORTH:
+        if self._current_direction == 'n':
             self.rect.move_ip(0, -self._speed)
-        elif self._current_direction == Direction.SOUTH:
+        elif self._current_direction == 's':
             self.rect.move_ip(0, self._speed)
-        elif self._current_direction == Direction.EAST:
+        elif self._current_direction == 'e':
             self.rect.move_ip(self._speed, 0)
-        elif self._current_direction == Direction.WEST:
+        elif self._current_direction == 'w':
             self.rect.move_ip(-self._speed, 0)
 
 
@@ -172,27 +173,27 @@ class Ghost(Character):
 
     def __move(self) -> None:
         """ move the ghost in the current direction """
-        if self._current_direction == Direction.SOUTH and self.image == self.images[0]:
+        if self._current_direction == 's' and self.image == self.images[0]:
             self.image = self.images[1]
             self.rect.move_ip(0, self._speed)
-        elif self._current_direction == Direction.SOUTH and self.image == self.images[1]:
+        elif self._current_direction == 's' and self.image == self.images[1]:
             self.image = self.images[0]
             self.rect.move_ip(0, self._speed)
-        elif self._current_direction == Direction.WEST and self.image == self.images[2]:
+        elif self._current_direction == 'w' and self.image == self.images[2]:
             self.image = self.images[3]
             self.rect.move_ip(-self._speed, 0)
-        elif self._current_direction == Direction.WEST and self.image == self.images[3]:
+        elif self._current_direction == 'w' and self.image == self.images[3]:
             self.image = self.images[2]
             self.rect.move_ip(-self._speed, 0)
-        elif self._current_direction == Direction.EAST and self.image == self.images[4]:
+        elif self._current_direction == 'e' and self.image == self.images[4]:
             self.image = self.images[5]
             self.rect.move_ip(self._speed, 0)
-        elif self._current_direction == Direction.EAST and self.image == self.images[5]:
+        elif self._current_direction == 'e' and self.image == self.images[5]:
             self.image = self.images[4]
             self.rect.move_ip(self._speed, 0)
-        elif self._current_direction == Direction.NORTH and self.image == self.images[6]:
+        elif self._current_direction == 'n' and self.image == self.images[6]:
             self.image = self.images[7]
             self.rect.move_ip(0, -self._speed)
-        elif self._current_direction == Direction.NORTH and self.image == self.images[7]:
+        elif self._current_direction == 'n' and self.image == self.images[7]:
             self.image = self.images[6]
             self.rect.move_ip(0, -self._speed)
