@@ -3,18 +3,19 @@ import os
 from collections import defaultdict
 from queue import Queue
 
-from src.scripts.consts import TileType, TileID
+from src.scripts.consts import TileID, TileAttr
 from src.scripts.misc import Direction
 
 
 class Tile:
 
-    def __init__(self, lx: int, ly: int, gx: int, gy: int, tile_type: TileType = None, tile_id: TileID = None):
+    def __init__(self, lx: int, ly: int, gx: int, gy: int, transversable: bool, tile_id: TileID = None,
+                 tile_attr: TileAttr = None):
         self.__local_coords = lx, ly
         self.__global_coords = gx, gy
-        self.__transverse = True if tile_type == TileType.NONE or tile_type == TileType.OTHER else False
-        self.__tile_type = tile_type
+        self.__transverse = transversable
         self.__tile_id = tile_id
+        self.__tile_attr = tile_attr
 
     def __repr__(self):
         return f'{self.__local_coords}, {self.__transverse}'
@@ -54,77 +55,120 @@ class Tile:
 
 
 class TileMap:
+    """
+    A coordinate system for the Pac Man scene containing a statically or dynamically generated
+    square/hexagonal/random grid. Each tile is referencable through list indexing in the format
+    [x, y] e.g. TileMap[0, 0]. Given a start and end coordinate, the map can find the shortest path
+    between said points or find alternative tiles adjacent to a coordinate.
 
+    The TileMap used local and global coordinates represented as lx, ly, gx, and gy.
+    Global coordinates are physical coordinates within the window scene whereas local coordinates
+    refer to a grid coordinate relative to the number of tiles in the grid. e.g. Tile 1, 2 is at 20, 40
+    because the tile size is 20 therefore: lx = 1, ly = 2, gx = 20, gy = 40
+
+    :param tile_size: size of each tile (width and height are the same)
+    :type tile_size: int
+    """
     def __init__(self, tile_size: int):
-        self.tiles = []
+        self.tiles: [Tile] = []
         with open(os.path.abspath('../src/data/data.json'), 'r') as file:
             data = json.load(file)['staticLevel']
             for x, row in enumerate(data):
                 self.tiles.append([])
                 for y, tile in enumerate(row):
                     if tile == ' ':
-                        self.tiles[x].append(Tile(y, x, y * tile_size, x * tile_size, tile_type=TileType.BLANK))
+                        self.tiles[x].append(Tile(y, x, y * tile_size, x * tile_size, True, TileID.BLANK))
                     elif tile == '=':
-                        self.tiles[x].append(Tile(y, x, y * tile_size, x * tile_size, tile_type=TileType.DBL_WALL))
+                        self.tiles[x].append(Tile(y, x, y * tile_size, x * tile_size, False, TileID.DBL_WALL))
                     elif tile == '-':
-                        self.tiles[x].append(Tile(y, x, y * tile_size, x * tile_size, tile_type=TileType.WALL))
+                        self.tiles[x].append(Tile(y, x, y * tile_size, x * tile_size, False, TileID.WALL))
+                    elif self.tiles == 'd':
+                        self.tiles[x].append(Tile(y, x, y * tile_size, x * tile_size, False, TileID.DOOR))
                     elif tile == '.':
-                        self.tiles[x].append(Tile(y, x, y * tile_size, x * tile_size, tile_id=TileID.FRUIT))
-                    elif tile == '.':
-                        self.tiles[x].append(Tile(y, x, y * tile_size, x * tile_size, tile_id=TileID.FRUIT))
+                        self.tiles[x].append(Tile(y, x, y * tile_size, x * tile_size, True, TileID.FRUIT))
+                    elif tile == '*':
+                        self.tiles[x].append(Tile(y, x, y * tile_size, x * tile_size, True, TileID.ENERGIZER))
+                    elif tile == 'p':
+                        self.tiles[x].append(Tile(y, x, y * tile_size, x * tile_size, True, TileID.BLANK,
+                                                  TileAttr.PACMAN_SPAWN))
+                    elif tile == 'c':
+                        self.tiles[x].append(Tile(y, x, y * tile_size, x * tile_size, True, TileID.CHERRY))
+                    elif tile == 'g':
+                        self.tiles[x].append(Tile(y, x, y * tile_size, x * tile_size, True, TileID.BLANK,
+                                                  TileAttr.GHOST_SPAWN))
+        self.__lheight = len(self.tiles)
+        self.__lwidth = len(self.tiles[0])
+        self.__gheight = self.__lheight * tile_size
+        self.__gwidth = self.__lwidth * tile_size
 
     def __getitem__(self, item: tuple):
         return self.tiles[item[1]][item[0]]
 
     def adjacent_tile(self, x: int, y: int, direction: Direction):
-        if direction == 'n' and 0 < y < height:
+        if direction == 'n' and 0 < y < self.__lheight:
             return self[x, y - 1]
-        elif direction == 's' and 0 <= y < (height - 1):
+        elif direction == 's' and 0 <= y < (self.__lheight - 1):
             return self[x, y + 1]
-        elif direction == 'e' and 0 <= x < (width - 1):
+        elif direction == 'e' and 0 <= x < (self.__lwidth - 1):
             return self[x + 1, y]
-        elif direction == 'w' and 0 < x < width:
+        elif direction == 'w' and 0 < x < self.__lwidth:
             return self[x - 1, y]
         else:
             return None
 
     def adjacent_tiles(self, x: int, y: int, exclude_direction: str = None):
+        """
+        Get adjacent tiles of a tile and return the tiles indexed by a compass character.
+        :param x: x-local-coordinate of the initial tile
+        :param y: y-local-coordinate of the initial tile
+        :param exclude_direction: find all adjacent cells except in this direction
+        :return:
+        """
+
         directions = {'n', 's', 'e', 'w'}
         if exclude_direction is not None and exclude_direction in directions:
             directions.discard(exclude_direction)
         tiles = defaultdict()
-        if 'n' in directions and 0 < y < height:
+        if 'n' in directions and 0 < y < self.__lheight:
             tile = self[x, y - 1]
             if tile.is_transversible():
                 tiles['n'] = tile
-        if 's' in directions and 0 <= y < (height - 1):
+        if 's' in directions and 0 <= y < (self.__lheight - 1):
             tile = self[x, y + 1]
             if tile.is_transversible():
                 tiles['s'] = tile
-        if 'e' in directions and 0 <= x < (width - 1):
+        if 'e' in directions and 0 <= x < (self.__lwidth - 1):
             tile = self[x + 1, y]
             if tile.is_transversible():
                 tiles['e'] = tile
-        if 'w' in directions and 0 < x < width:
+        if 'w' in directions and 0 < x < self.__lwidth:
             tile = self[x - 1, y]
             if tile.is_transversible():
                 tiles['w'] = tile
+
         return tiles
 
     def __gen_path(self, origin_x: int, origin_y: int, exclude_direction: str = None):
+        """
+        generate a list of recurisive paths for each corridor on the grid
+        :param origin_x: x-local-coordinate of the starting coordinate
+        :param origin_y: y-local-coordinate of the starting coordinate
+        :param exclude_direction:
+        :return:
+        """
         origin = self[origin_x, origin_y]
         adjacent_tiles = self.adjacent_tiles(origin_x, origin_y, exclude_direction)
         for d, tile in adjacent_tiles.items():
             path = [origin, tile]
             while True:
                 direction = Direction(d)
-                next_tile = self.adjacent_tile(path[-1].x, path[-1].y, direction)
+                next_tile = self.adjacent_tile(path[-1].lx, path[-1].ly, direction)
 
                 if next_tile is not None and next_tile.is_transversible():
                     path.append(next_tile)
 
-                    left_tile = self.adjacent_tile(path[-1].x, path[-1].y, direction - 1)
-                    right_tile = self.adjacent_tile(path[-1].x, path[-1].y, direction + 1)
+                    left_tile = self.adjacent_tile(path[-1].lx, path[-1].ly, direction - 1)
+                    right_tile = self.adjacent_tile(path[-1].lx, path[-1].ly, direction + 1)
                     if left_tile is not None and left_tile.is_transversible():
                         path.append((direction - 2).orientation)
                         break
@@ -135,21 +179,31 @@ class TileMap:
                     continue
                 path.append((direction - 2).orientation)
                 break
+
             yield path
 
-    @staticmethod
-    def __gen_paths_to_target(start_coords: tuple, target_coords: tuple):
-        start = tile_map.__gen_path(*start_coords)
+    def __gen_paths_to_target(self, start_coords: tuple, target_coords: tuple):
+        """
+        reorganise each available path on the grid to find the shortest path between
+        the starting coordinate and target coordinate
+
+        :param start_coords: starting coordinate
+        :type start_coords: Tuple[int, int]
+        :param target_coords: target coordinate
+        :type target_coords: Tuple[int, int]
+        :return: list of coordinates between the start and target point
+        """
+        start = self.__gen_path(*start_coords)
         paths = []
         temp_paths = Queue()
         for path in start:
             paths.append(path)
             temp_paths.put(path)
 
-        target = tile_map[target_coords[0], target_coords[1]]
+        target = self[target_coords[0], target_coords[1]]
         while not temp_paths.empty():
             prev_path = temp_paths.get()
-            next_paths = tile_map.__gen_path(prev_path[-2].x, prev_path[-2].y, prev_path[-1])
+            next_paths = self.__gen_path(prev_path[-2].lx, prev_path[-2].ly, prev_path[-1])
             for next_path in next_paths:
                 paths.append(next_path)
                 if target in next_path:
@@ -172,7 +226,7 @@ class TileMap:
         if start == target:
             return None
 
-        options = tile_map.__gen_paths_to_target((start_x, start_y), (target_x, target_y))
+        options = self.__gen_paths_to_target((start_x, start_y), (target_x, target_y))
 
         paths = []
         future_paths = Queue()
@@ -189,7 +243,16 @@ class TileMap:
                     paths.append(combine_path)
         return min((i for i in paths if target in i), key=len)
 
+    def render(self, display):
+        """ render controller for rendering every thing on the scene
 
-tile_map = TileMap()
-shortest_path = tile_map.find_shortest_path(0, 0, 5, 4)
-print(shortest_path)
+        :param display: current pygame display
+        :type display: pygame.Surface
+        :return:
+        """
+        # TODO: make render function
+        ...
+
+
+tm = TileMap(20)
+tm.find_shortest_path(1, 1, 5, 1)

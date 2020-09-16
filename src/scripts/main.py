@@ -70,7 +70,6 @@ def menu():
         display.blit(settings_btn.text, settings_btn.pos)
 
         pygame.display.update()
-        clock(FPS)
 
     return 0
 
@@ -93,7 +92,6 @@ def settings():
         back_btn.render(display)
 
         pygame.display.update()
-        clock(FPS)
 
     return 0
 
@@ -137,7 +135,6 @@ def start_game():
         display.blit(pacman.get(), (pacman.x, pacman.y))
 
         pygame.display.update()
-        clock(FPS)
 
     return 0
 

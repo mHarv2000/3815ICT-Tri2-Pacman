@@ -62,6 +62,8 @@ class Direction:
                 return 's'
             elif value == 3:
                 return 'w'
+            else:
+                raise ValueError('digit must be in the range 0-3')
         elif isinstance(value, str):
             if value == 'n':
                 return 0
@@ -71,6 +73,10 @@ class Direction:
                 return 2
             elif value == 'w':
                 return 3
+            else:
+                raise ValueError(f'character \'{value}\' does not exist')
+        else:
+            raise TypeError('only accepts the characters n, s, e, w and integers 0-3')
 
     def is_north_or_south(self):
         """ check if direction is north or south

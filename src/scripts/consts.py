@@ -1,5 +1,3 @@
-import json
-import os
 from enum import Enum, unique
 
 
@@ -21,40 +19,31 @@ class GenType(Enum):
 
 
 @unique
-class TileType(Enum):
-    """
-    A generic label given to each tile to organise the tiles and help tell which tiles need a specific ID generated.
-    """
-    NONE = 0
-    WALL = 1
-    DBL_WALL = 2
-    DOOR = 3
-    OTHER = 4
-
-
-@unique
 class TileID(Enum):
     """
     A specific label given to each tile to tell the game exactly what the tile is.
     """
     BLANK = 0  # blank tile
-    DBL_WALL_TL = 1  # double wall top-left tile
-    DBL_WALL_TR = 2  # double wall top-right tile
-    DBL_WALL_BR = 3  # double wall bottom_right tile
-    DBL_WALL_BL = 4  # double wall bottom-left tile
-    DBL_WALL_H = 5  # double wall horizontal tile
-    DBL_WALL_V = 6  # double wall vertical tile
-    WALL_TL = 7  # wall top-left tile
-    WALL_TR = 8  # wall top-right tile
-    WALL_BR = 9  # wall bottom-right tile
-    WALL_BL = 10  # wall bottom-left tile
-    WALL_H = 11  # wall horizontal tile
-    WALL_V = 12  # wall vertical tile
-    FRUIT = 13  # fruit tile
-    ENERGIZER = 14  # energizer tile
-    CHERRY = 15  # cherry tile
-    DOOR_H = 16  # door horizontal tile
-    DOOR_V = 17  # door vertical tile
+    DBL_WALL = 1  # generic double wall
+    DBL_WALL_TL = 2  # double wall top-left tile
+    DBL_WALL_TR = 3  # double wall top-right tile
+    DBL_WALL_BR = 4  # double wall bottom_right tile
+    DBL_WALL_BL = 5  # double wall bottom-left tile
+    DBL_WALL_H = 6  # double wall horizontal tile
+    DBL_WALL_V = 7  # double wall vertical tile
+    WALL = 8  # generic wall
+    WALL_TL = 9  # wall top-left tile
+    WALL_TR = 10  # wall top-right tile
+    WALL_BR = 11  # wall bottom-right tile
+    WALL_BL = 12  # wall bottom-left tile
+    WALL_H = 13  # wall horizontal tile
+    WALL_V = 14  # wall vertical tile
+    FRUIT = 15  # fruit tile
+    ENERGIZER = 16  # energizer tile
+    CHERRY = 17  # cherry tile
+    DOOR = 18  # generic door
+    DOOR_H = 19  # door horizontal tile
+    DOOR_V = 20  # door vertical tile
 
 
 @unique

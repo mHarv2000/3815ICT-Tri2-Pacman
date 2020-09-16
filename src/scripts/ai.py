@@ -1,145 +1,95 @@
 import glob
 import pygame
-from typing import Tuple
-from src.scripts.consts import *
 from src.scripts.misc import Direction
 
 
-class Character(pygame.sprite.Sprite):
-    """
-    Generic Character for AI or PLayer control
-
-    AI or player controlled sprite with path finding, animation and transform control. Used with an external pygame
-    display to render and update the character each frame
-
-    :param x: local x coordinate
-    :type x: int
-    :param y: local y coordinate
-    :type x: int
-    :param speed: how many tiles are travelled per second
-    :type speed: float
-    :param frames_path: path to directory containing the png images used for character animation, animation is
-                        generated based on the order of the images. path must end with /*.png as only png images
-                        are supported
-    :type frames_path: str
-    """
-
-    # noinspection PyShadowingNames
-    def __init__(self, x: int, y: int, speed: float, frames_path: str):
-        super(Character, self).__init__()
-        try:
-            self.images = glob.glob(frames_path)
-            self.images = [pygame.image.load(path) for path in self.images]
-        except FileNotFoundError as err:
-            raise FileExistsError("file path to directory: '%s' does not exist" % err)
-        self._x = x
-        self._y = y
-        self._current_direction = 's'
-        self._speed = (speed * TILE_SIZE) // FPS
-        if self._speed == 0:
-            self._speed = 1
-        self._index = 0
-        self.image = pygame.transform.scale(self.images[self._index], (TILE_SIZE, TILE_SIZE))
-        self.rect = pygame.Rect(x, y, TILE_SIZE, TILE_SIZE)
-
-    @property
-    def direction(self) -> Direction:
-        """ get current direction """
-        return self._current_direction
-
-    @direction.setter
-    def direction(self, value: Direction):
-        """ set current direction to another direction """
-        if not isinstance(value, Direction):
-            raise ValueError("direction must be a Direction object")
-        self._current_direction = value
-
-    @property
-    def pos(self) -> Tuple[int, int]:
-        """ get grid position """
-        return self._x, self._y
-
-    # noinspection PyUnresolvedReferences
-    @pos.setter
-    def pos(self, coords: Tuple[int, int]):
-        """ set grid position """
-        if not isinstance(coords, (int, int)):
-            raise TypeError("coordinates must be a tuple: (0, 0)")
-        self._x = coords[0]
-        self._y = coords[1]
-
-    def animate(self) -> None:
-        """
-        Run Animation Functions
-        animations setup should be used in separate functions and then called from here
-
-        """
-        ...
-
-
-class PacMan(Character):
-    """
-    The PacMan Character Controller
+class PacMan:
+    """ The PacMan Character Controller
 
     The PacMan class controls the animation, direction, events and state of the character
     controlled through pygame key-events externally.
     -   sprite animation relies on a group of image icons to animate each frame.
     -   pacman movement is updated constantly and may only change direction when an arrow key event is triggered
 
-    :param x: local x coordinate
-    :type x: int
-    :param y: local y coordinate
-    :type x: int
+    :param lx: local x-coordinate on the tile_map
+    :type lx: int
+    :param ly: local y-coordinate on the tile_map
+    :type lx: int
     :param speed: how many tiles are travelled per second
     :type speed: float
-    :param frames_path: path to directory containing the png images used for character animation, animation is
-                        generated based on the order of the images. path must end with /*.png as only png images
-                        are supported
-    :type frames_path: str
-
     """
 
-    def __init__(self, x: int, y: int, speed: float, frames_path: str):
-        super(PacMan, self).__init__(x, y, speed, frames_path)
+    def __init__(self, lx: int, ly: int, size: int, speed: int):
+        try:
+            url = glob.glob('../img/pacman/*.png')
+            self.__animation_seq = [pygame.transform.scale(pygame.image.load(img), (size, size)) for img in url]
+        except FileNotFoundError as err:
+            raise FileExistsError("file path to directory: '%s' does not exist" % err)
 
-    def __rotate(self) -> pygame.Rect:
-        """
-        rotate pacman to face direction
-        """
-        # TODO: make __rotate function
-        pass
+        self.__lx = lx
+        self.__ly = ly
+        self.__gx = lx * size
+        self.__gy = ly * size
 
-    @Character.direction.setter
-    def direction(self, value: Direction):
-        """ set current direction to another direction """
-        if not isinstance(value, Direction):
-            raise ValueError("direction must be a Direction object")
-        self.rect = self.__rotate()
-        self._current_direction = value
+        self.__frame_index = 0
+        self.__animation_playback = 1
+        self.__frame = self.__animation_seq[0]
 
-    def animate(self) -> None:
-        self.__animate_eat()
-        self.__move()
+        self.__current_direction = Direction('e')
+        self.__speed = speed
 
-    def __animate_eat(self) -> None:
-        """ animate pacman eating """
-        self._index += 1
-        if self._index >= len(self.images):
-            self._index = 0
-        self.image = pygame.transform.scale(self.images[self._index], (TILE_SIZE, TILE_SIZE))
+    @property
+    def lx(self):
+        """ get the local x-coordinate relative to the grid """
+        return self.__lx
 
-    def __move(self) -> None:
-        """ move and rotate pacman in the current direction """
-        self._gx = self.rect.x
-        self._gy = self.rect.y
-        if self._current_direction == 'n':
-            self.rect.move_ip(0, -self._speed)
-        elif self._current_direction == 's':
-            self.rect.move_ip(0, self._speed)
-        elif self._current_direction == 'e':
-            self.rect.move_ip(self._speed, 0)
-        elif self._current_direction == 'w':
-            self.rect.move_ip(-self._speed, 0)
+    @property
+    def ly(self):
+        """ get the local y-coordinate relative to the grid """
+        return self.__ly
+
+    @property
+    def gx(self):
+        """ get the global x-coordinate """
+        return self.__gx
+
+    @property
+    def gy(self):
+        """ get the global y-coordinate """
+        return self.__gy
+
+    def get(self):
+        """ get current frame of animation """
+        return self.__frame
+
+    def update_frame(self):
+        """ update frame in animation """
+        if self.__frame_index == len(self.__animation_seq) - 1:
+            self.__animation_playback = -1
+        elif self.__frame_index == 0:
+            self.__animation_playback = 1
+        self.__frame_index += self.__animation_playback
+        self.__frame = self.__animation_seq[self.__frame_index]
+
+    def update(self):
+        """ move in the current direction """
+        if self.__current_direction == 0:
+            self.__gy += self.__speed
+        elif self.__current_direction == 1:
+            self.__gx += self.__speed
+        elif self.__current_direction == 2:
+            self.__gy -= self.__speed
+        elif self.__current_direction == 3:
+            self.__gx -= self.__speed
+
+    def rotate(self, new_direction):
+        """ rotate to face the current direction """
+        old_angle = int(self.__current_direction) * 90
+        new_angle = int(new_direction) * 90
+        self.__current_direction = new_direction
+        for i, frame in enumerate(self.__animation_seq):
+            self.__animation_seq[i] = pygame.transform.rotate(self.__animation_seq[i], -old_angle)
+            self.__animation_seq[i] = pygame.transform.rotate(self.__animation_seq[i], new_angle)
 
 
 class Ghost(Character):
