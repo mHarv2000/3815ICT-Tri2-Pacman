@@ -73,7 +73,6 @@ class Label:
 		display the elements to the screen
 		:param display: the current pygame display
 		:type display: pygame.Surface
-		:return:
 		"""
 		pygame.draw.rect(display, (0, 0, 0), self.__rect)
 		display.blit(self.__text, self.__text_pos)
@@ -142,7 +141,7 @@ class Spinner:
 
 	@property
 	def pos(self):
-		return
+		return self.__x, self.__y
 
 	def set_step(self, value: int) -> None:
 		""" set step amount """

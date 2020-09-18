@@ -2,12 +2,12 @@ from json import load
 import os
 import time
 from threading import Thread
-
 import pygame
+
+from src.scripts.ai import PacMan, Ghost
 from src.scripts.misc import Direction
+from src.scripts.scene import TileMap
 from src.scripts.ui import Label
-from testing.shotest_path import TileMap
-from testing.testing import PacMan
 
 """
 The pygame display renders each page as a modal. The menu, settings nd start_game functions are in charge
@@ -39,6 +39,7 @@ sml_font = pygame.font.Font(os.path.abspath('../font/BarcadeBrawlRegular.ttf'), 
 clock = pygame.time.Clock()
 
 del icon
+
 
 def menu():
     """ Display Menu """
@@ -101,15 +102,20 @@ def start_game():
     """ Display and Start Game """
 
     running = True
+    level = 0
     back_btn = Label(0, 0, (255, 255, 255), '<', 10, sml_font)
     tile_map = TileMap(TILE_SIZE)
-    pacman = PacMan(50, 50, 50, 1)
+    pacman = PacMan(1, 1, 1, 50, 0)
+    ghost_inky = Ghost(0, 0, 1, 50, 'inky')
+    ghost_blinky = Ghost(0, 0, 1, 50, 'blinky')
+    ghost_pinky = Ghost(0, 0, 1, 50, 'pinky')
+    ghost_clyde = Ghost(0, 0, 1, 50, 'clyde')
 
     def update_per_second():
         while running:
             time.sleep(.1)
-            pacman.update()
-            pacman.update_frame()
+            pacman.move()
+            pacman.resume_animation()
 
     th1 = Thread(target=update_per_second)
     th1.start()
@@ -134,7 +140,7 @@ def start_game():
 
         display.fill((0, 0, 0))
         back_btn.render(display)
-        display.blit(pacman.get(), (pacman.gx, pacman.gy))
+        display.blit(pacman.get_frame(), (pacman.gx, pacman.gy))
 
         pygame.display.update()
 
@@ -155,3 +161,7 @@ while True:
         break
 
 pygame.quit()
+
+
+
+

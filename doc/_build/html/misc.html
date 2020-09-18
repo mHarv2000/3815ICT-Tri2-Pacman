@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-      <title>Constant Local Variables</title>
+      <title>main</title>
     
       <link rel="stylesheet" href="_static/pygments.css">
       <link rel="stylesheet" href="_static/theme.css">
@@ -22,8 +22,7 @@
       <script src="_static/theme.js" defer></script>
     
   <link rel="index" title="Index" href="genindex.html" />
-  <link rel="search" title="Search" href="search.html" />
-  <link rel="prev" title="UI Elements" href="ui.html" /> 
+  <link rel="search" title="Search" href="search.html" /> 
   </head>
 
   <body>
@@ -71,7 +70,7 @@
       <p class="caption">
         <span class="caption-text"><a href="index.html#welcome-to-pacman-s-documentation">Contents:</a></span>
       </p>
-      <ul class="current">
+      <ul class="">
         
           <li class="toctree-l1 "><a href="main.html" class="reference internal ">main</a>
 
@@ -97,14 +96,8 @@
           </li>
 
         
-          <li class="toctree-l1 current"><a href="#" class="reference internal current">Constant Local Variables</a>
+          <li class="toctree-l1 "><a href="consts.html" class="reference internal ">Constant Local Variables</a>
 
-            
-              <ul>
-                
-                  <li class="toctree-l2"><a href="#module-src.scripts.consts" class="reference internal">Constant Local Variables</a></li>
-                
-              </ul>
             
           </li>
 
@@ -121,49 +114,79 @@
   <ul class="breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
     
-    <li>Constant Local Variables</li>
+    <li>main</li>
   </ul>
   
 
   <ul class="page-nav">
-  <li class="prev">
-    <a href="ui.html"
-       title="previous chapter">← UI Elements</a>
-  </li>
 </ul>
   
 </div>
 <hr>
           <div class="content" role="main">
             
-  <div class="section" id="module-src.scripts.consts">
-<span id="constant-local-variables"></span><h1>Constant Local Variables<a class="headerlink" href="#module-src.scripts.consts" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-src.scripts.misc">
+<span id="main"></span><h1>main<a class="headerlink" href="#module-src.scripts.misc" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt id="src.scripts.consts.GenType">
-<em class="property">class </em><code class="sig-prename descclassname">src.scripts.consts.</code><code class="sig-name descname">GenType</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.consts.GenType" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determines what type of tile-map the game will use
-SQUAREGRID  A grid full of square tiles with a simple coordinate system and requires keyboard support for basic</p>
-<blockquote>
-<div><p>up-down-left-right movement</p>
-</div></blockquote>
-<dl class="simple">
-<dt>HEXGRID     Similar to the square grid but with hexagon tiles where every second coordinate on the x-axis is placed</dt><dd><p>lower on the y-axis by half the size of the tile and vice-versa with the y-axis.</p>
+<dt id="src.scripts.misc.Direction">
+<em class="property">class </em><code class="sig-prename descclassname">src.scripts.misc.</code><code class="sig-name descname">Direction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.misc.Direction" title="Permalink to this definition">¶</a></dt>
+<dd><p>A clock-wise lateral dynamically incremental compass used to tell the direction relative to the grid.</p>
+<p>Each direction Is iterable and can be iterated over infinitely to return a string based
+representation of each compass direction (orientation) or a number representing the orientation (digit);
+‘n’ | 0 (North), ‘e’ | 1 (East), ‘s’ | 2 (South) and ‘w’ | 3 (West)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>str | int</em>) – string character (n, s, e, w) or 0-3</p>
 </dd>
-<dt>RANDGRID    An arbitrary graph format where each path branches out in random directions and does not rely on tiles.</dt><dd><p>The grid however extends a basic coordinate system and requires mouse support to move the PacMan object</p>
+</dl>
+<dl class="py method">
+<dt id="src.scripts.misc.Direction.convert">
+<em class="property">static </em><code class="sig-name descname">convert</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.misc.Direction.convert" title="Permalink to this definition">¶</a></dt>
+<dd><p>set orientation equivalent to the digit and vice versa</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> – orientation or digit</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>return the opposite value of the one passed in through value,
+e.g. passing in orientation will return the digit</p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py class">
-<dt id="src.scripts.consts.TileAttr">
-<em class="property">class </em><code class="sig-prename descclassname">src.scripts.consts.</code><code class="sig-name descname">TileAttr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.consts.TileAttr" title="Permalink to this definition">¶</a></dt>
-<dd><p>An attribute given to tile objects to help with path-finding</p>
+<dl class="py method">
+<dt id="src.scripts.misc.Direction.digit">
+<em class="property">property </em><code class="sig-name descname">digit</code><a class="headerlink" href="#src.scripts.misc.Direction.digit" title="Permalink to this definition">¶</a></dt>
+<dd><p>get digit</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>digit representing the direction</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py class">
-<dt id="src.scripts.consts.TileID">
-<em class="property">class </em><code class="sig-prename descclassname">src.scripts.consts.</code><code class="sig-name descname">TileID</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.consts.TileID" title="Permalink to this definition">¶</a></dt>
-<dd><p>A specific label given to each tile to tell the game exactly what the tile is.</p>
+<dl class="py method">
+<dt id="src.scripts.misc.Direction.is_north_or_south">
+<code class="sig-name descname">is_north_or_south</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.misc.Direction.is_north_or_south" title="Permalink to this definition">¶</a></dt>
+<dd><p>check if direction is north or south</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>True/False</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.misc.Direction.orientation">
+<em class="property">property </em><code class="sig-name descname">orientation</code><a class="headerlink" href="#src.scripts.misc.Direction.orientation" title="Permalink to this definition">¶</a></dt>
+<dd><p>get direction</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>string representation of direction</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -172,10 +195,6 @@ SQUAREGRID  A grid full of square tiles with a simple coordinate system and requ
           </div>
           <div class="page-nav">
             <div class="inner"><ul class="page-nav">
-  <li class="prev">
-    <a href="ui.html"
-       title="previous chapter">← UI Elements</a>
-  </li>
 </ul><div class="footer" role="contentinfo">
       &#169; Copyright 2020, Max Harvey.
     <br>

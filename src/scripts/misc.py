@@ -5,6 +5,8 @@ class Direction:
     representation of each compass direction (orientation) or a number representing the orientation (digit);
     'n' | 0 (North), 'e' | 1 (East), 's' | 2 (South) and 'w' | 3 (West)
 
+    :param value: string character (n, s, e, w) or 0-3
+    :type value: str | int
     """
     def __init__(self, value):
         if isinstance(value, str):

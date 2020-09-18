@@ -1,7 +1,6 @@
 import glob
 import threading
 import time
-from collections import defaultdict
 
 import pygame
 from src.scripts.misc import Direction
@@ -24,37 +23,38 @@ class Character:
     """
 
     def __init__(self, lx: int, ly: int, speed: int, size: int):
-        self.__lx = lx
-        self.__ly = ly
-        self.__gx = lx * size
-        self.__gy = ly * size
+        self._lx = lx
+        self._ly = ly
+        self._gx = lx * size
+        self._gy = ly * size
 
-        self.__speed = speed
-        self.__frame = None
+        self._current_direction = Direction('e')
+        self._speed = speed
+        self._frame = None
 
     @property
     def lx(self):
         """ get the local x-coordinate relative to the grid """
-        return self.__lx
+        return self._lx
 
     @property
     def ly(self):
         """ get the local y-coordinate relative to the grid """
-        return self.__ly
+        return self._ly
 
     @property
     def gx(self):
         """ get the global x-coordinate """
-        return self.__gx
+        return self._gx
 
     @property
     def gy(self):
         """ get the global y-coordinate """
-        return self.__gy
+        return self._gy
 
     def get_frame(self):
         """ get current frame of animation """
-        return self.__frame
+        return self._frame
 
     def resume_animation(self):
         """ update frame in animation """
@@ -83,6 +83,8 @@ class PacMan(Character):
     :type speed: int
     :param size: should be equal to tile_size
     :type size: int
+    :param highscore: copy of highscore value from storage
+    :type highscore: int
     """
 
     def __init__(self, lx: int, ly: int, speed: int, size: int, highscore: int):
@@ -93,16 +95,9 @@ class PacMan(Character):
         except FileNotFoundError as err:
             raise FileExistsError("file path to directory: '%s' does not exist" % err)
 
-        self.__lx = lx
-        self.__ly = ly
-        self.__gx = lx * size
-        self.__gy = ly * size
-
         self.__frame_index = 0
         self.__animation_playback = 1
-        self.__frame = self.__animation_seq[0]
-        self.__current_direction = Direction('e')
-        self.__speed = speed
+        self._frame = self.__animation_seq[0]
 
         # score information
         self.__score = 0
@@ -116,24 +111,24 @@ class PacMan(Character):
         elif self.__frame_index == 0:
             self.__animation_playback = 1
         self.__frame_index += self.__animation_playback
-        self.__frame = self.__animation_seq[self.__frame_index]
+        self._frame = self.__animation_seq[self.__frame_index]
 
     def move(self):
         """ move in the current direction """
-        if self.__current_direction == 0:
-            self.__gy += self.__speed
-        elif self.__current_direction == 1:
-            self.__gx += self.__speed
-        elif self.__current_direction == 2:
-            self.__gy -= self.__speed
-        elif self.__current_direction == 3:
-            self.__gx -= self.__speed
+        if self._current_direction == 0:
+            self._gy += self._speed
+        elif self._current_direction == 1:
+            self._gx += self._speed
+        elif self._current_direction == 2:
+            self._gy -= self._speed
+        elif self._current_direction == 3:
+            self._gx -= self._speed
 
     def rotate(self, new_direction):
         """ rotate to face the current direction """
-        old_angle = int(self.__current_direction) * 90
+        old_angle = int(self._current_direction) * 90
         new_angle = int(new_direction) * 90
-        self.__current_direction = new_direction
+        self._current_direction = new_direction
         for i, frame in enumerate(self.__animation_seq):
             self.__animation_seq[i] = pygame.transform.rotate(self.__animation_seq[i], -old_angle)
             self.__animation_seq[i] = pygame.transform.rotate(self.__animation_seq[i], new_angle)
@@ -163,8 +158,9 @@ class PacMan(Character):
         }
 
     def remove_life(self):
-        """ remove a life """
+        """ remove a life and return the new amount left """
         self.__lives -= 1
+        return self.__lives
 
 
 class Ghost(Character):
@@ -200,36 +196,32 @@ class Ghost(Character):
 
         self.__name = ghost_name
 
-        self.__lx = lx
-        self.__ly = ly
-        self.__gx = lx * size
-        self.__gy = ly * size
+        self.__animation_playback = 1
+        self._frame = self.__animation_seq[0]
 
-        self.__frame_index = 0
-        self.__frame = self.__animation_seq[0]
-
-        self.__current_direction = Direction(0)
-        self.__speed = speed
+        self._current_direction = Direction(0)
+        self._speed = speed
         self.__vulnerable = False
         self.__semi_vulnerable = False
+        self__path = []
 
-    def update_frame(self):
+    def resume_animation(self):
         """ update frame in animation """
         if self.__animation_playback == 1:
             self.__animation_playback = 0
         else:
             self.__animation_playback = 1
 
-    def update(self) -> None:
+    def move(self) -> None:
         """ move in the current direction """
-        if self.__current_direction == 0:
-            self.__gy += self.__speed
-        elif self.__current_direction == 1:
-            self.__gx += self.__speed
-        elif self.__current_direction == 2:
-            self.__gy -= self.__speed
-        elif self.__current_direction == 3:
-            self.__gx -= self.__speed
+        if self._current_direction == 0:
+            self._gy += self._speed
+        elif self._current_direction == 1:
+            self._gx += self._speed
+        elif self._current_direction == 2:
+            self._gy -= self._speed
+        elif self._current_direction == 3:
+            self._gx -= self._speed
 
     def rotate(self, new_direction):
         """ rotate to face the current direction """
@@ -240,7 +232,11 @@ class Ghost(Character):
         """ convert the ghost into vulnerable state for a limited number of seconds.
 
         With 4 seconds remaining, the ghost will go into semi-vulnerable state where it will
-        begin flashign white/blue before finally returning to it's normal state. """
+        begin flashing white/blue before finally returning to it's normal state.
+
+        :param sec: number of seconds the ghost is vulnerable
+        :type sec: int
+        """
 
         def __timer():
             """  """
@@ -257,3 +253,13 @@ class Ghost(Character):
         timer.start()
         timer.join()
         self.__vulnerable = False
+
+    def follow(self, new_path):
+        """ set the current path to allow the Ghost to follow along
+        a set of Tiles until it reaches the end point
+
+        :param new_path: list of tiles in order representing the path from the
+                         current coordinate to the end-point
+        :type new_path: [(int, int)]
+        """
+        ...

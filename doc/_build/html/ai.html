@@ -145,46 +145,73 @@
 <span id="ai"></span><h1>AI<a class="headerlink" href="#module-src.scripts.ai" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="src.scripts.ai.Character">
-<em class="property">class </em><code class="sig-prename descclassname">src.scripts.ai.</code><code class="sig-name descname">Character</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">y</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">speed</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">frames_path</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ai.Character" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">src.scripts.ai.</code><code class="sig-name descname">Character</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lx</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">ly</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">speed</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">size</span><span class="p">:</span> <span class="n">int</span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ai.Character" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generic Character for AI or PLayer control</p>
 <p>AI or player controlled sprite with path finding, animation and transform control. Used with an external pygame
 display to render and update the character each frame</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>int</em>) – local x coordinate</p></li>
-<li><p><strong>y</strong> – local y coordinate</p></li>
-<li><p><strong>speed</strong> (<em>float</em>) – how many tiles are travelled per second</p></li>
-<li><p><strong>frames_path</strong> (<em>str</em>) – path to directory containing the png images used for character animation, animation is
-generated based on the order of the images. path must end with /<a href="#id1"><span class="problematic" id="id2">*</span></a>.png as only png images
-are supported</p></li>
+<li><p><strong>lx</strong> (<em>int</em>) – local x-coordinate on the tile_map</p></li>
+<li><p><strong>ly</strong> – local y-coordinate on the tile_map</p></li>
+<li><p><strong>speed</strong> (<em>int</em>) – how many tiles are travelled per second</p></li>
+<li><p><strong>size</strong> (<em>int</em>) – should be equal to tile_size</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="src.scripts.ai.Character.animate">
-<code class="sig-name descname">animate</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#src.scripts.ai.Character.animate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Run Animation Functions
-animations setup should be used in separate unctions and then called from here</p>
+<dt id="src.scripts.ai.Character.get_frame">
+<code class="sig-name descname">get_frame</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ai.Character.get_frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>get current frame of animation</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="src.scripts.ai.Character.direction">
-<em class="property">property </em><code class="sig-name descname">direction</code><a class="headerlink" href="#src.scripts.ai.Character.direction" title="Permalink to this definition">¶</a></dt>
-<dd><p>get current direction</p>
+<dt id="src.scripts.ai.Character.gx">
+<em class="property">property </em><code class="sig-name descname">gx</code><a class="headerlink" href="#src.scripts.ai.Character.gx" title="Permalink to this definition">¶</a></dt>
+<dd><p>get the global x-coordinate</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="src.scripts.ai.Character.pos">
-<em class="property">property </em><code class="sig-name descname">pos</code><a class="headerlink" href="#src.scripts.ai.Character.pos" title="Permalink to this definition">¶</a></dt>
-<dd><p>get grid position</p>
+<dt id="src.scripts.ai.Character.gy">
+<em class="property">property </em><code class="sig-name descname">gy</code><a class="headerlink" href="#src.scripts.ai.Character.gy" title="Permalink to this definition">¶</a></dt>
+<dd><p>get the global y-coordinate</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.ai.Character.lx">
+<em class="property">property </em><code class="sig-name descname">lx</code><a class="headerlink" href="#src.scripts.ai.Character.lx" title="Permalink to this definition">¶</a></dt>
+<dd><p>get the local x-coordinate relative to the grid</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.ai.Character.ly">
+<em class="property">property </em><code class="sig-name descname">ly</code><a class="headerlink" href="#src.scripts.ai.Character.ly" title="Permalink to this definition">¶</a></dt>
+<dd><p>get the local y-coordinate relative to the grid</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.ai.Character.move">
+<code class="sig-name descname">move</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ai.Character.move" title="Permalink to this definition">¶</a></dt>
+<dd><p>move in the current direction</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.ai.Character.resume_animation">
+<code class="sig-name descname">resume_animation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ai.Character.resume_animation" title="Permalink to this definition">¶</a></dt>
+<dd><p>update frame in animation</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.ai.Character.rotate">
+<code class="sig-name descname">rotate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">new_direction</span><span class="p">:</span> <span class="n"><a class="reference internal" href="misc.html#src.scripts.misc.Direction" title="src.scripts.misc.Direction">src.scripts.misc.Direction</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ai.Character.rotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>rotate to face the current direction</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="src.scripts.ai.Ghost">
-<em class="property">class </em><code class="sig-prename descclassname">src.scripts.ai.</code><code class="sig-name descname">Ghost</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">y</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">speed</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">frames_path</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ai.Ghost" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">src.scripts.ai.</code><code class="sig-name descname">Ghost</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lx</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">ly</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">speed</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">size</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">ghost_name</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ai.Ghost" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Ghost Character Controller</p>
 <p>The Ghost class controls the animation, direction, events and state of the character
 controlled through game events.
@@ -196,27 +223,62 @@ controlled through game events.
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>int</em>) – local x coordinate</p></li>
-<li><p><strong>y</strong> – local y coordinate</p></li>
-<li><p><strong>speed</strong> (<em>float</em>) – how many tiles are travelled per second</p></li>
-<li><p><strong>frames_path</strong> (<em>str</em>) – path to directory containing the png images used for character animation, animation is
-generated based on the order of the images. path must end with /<a href="#id3"><span class="problematic" id="id4">*</span></a>.png as only png images
-are supported</p></li>
+<li><p><strong>lx</strong> (<em>int</em>) – local x-coordinate on the tile_map</p></li>
+<li><p><strong>ly</strong> – local y-coordinate on the tile_map</p></li>
+<li><p><strong>speed</strong> (<em>int</em>) – how many tiles are travelled per second</p></li>
+<li><p><strong>size</strong> (<em>int</em>) – should be equal to tile_size</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="src.scripts.ai.Ghost.animate">
-<code class="sig-name descname">animate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ai.Ghost.animate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Run Animation Functions
-animations setup should be used in separate unctions and then called from here</p>
+<dt id="src.scripts.ai.Ghost.follow">
+<code class="sig-name descname">follow</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">new_path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ai.Ghost.follow" title="Permalink to this definition">¶</a></dt>
+<dd><p>set the current path to allow the Ghost to follow along
+a set of Tiles until it reaches the end point</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>new_path</strong> (<em>[</em><em>(</em><em>int</em><em>, </em><em>int</em><em>)</em><em>]</em>) – list of tiles in order representing the path from the
+current coordinate to the end-point</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.ai.Ghost.move">
+<code class="sig-name descname">move</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#src.scripts.ai.Ghost.move" title="Permalink to this definition">¶</a></dt>
+<dd><p>move in the current direction</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.ai.Ghost.resume_animation">
+<code class="sig-name descname">resume_animation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ai.Ghost.resume_animation" title="Permalink to this definition">¶</a></dt>
+<dd><p>update frame in animation</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.ai.Ghost.retreat">
+<code class="sig-name descname">retreat</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sec</span><span class="p">:</span> <span class="n">int</span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ai.Ghost.retreat" title="Permalink to this definition">¶</a></dt>
+<dd><p>convert the ghost into vulnerable state for a limited number of seconds.</p>
+<p>With 4 seconds remaining, the ghost will go into semi-vulnerable state where it will
+begin flashing white/blue before finally returning to it’s normal state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>sec</strong> (<em>int</em>) – number of seconds the ghost is vulnerable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.ai.Ghost.rotate">
+<code class="sig-name descname">rotate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">new_direction</span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ai.Ghost.rotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>rotate to face the current direction</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="src.scripts.ai.PacMan">
-<em class="property">class </em><code class="sig-prename descclassname">src.scripts.ai.</code><code class="sig-name descname">PacMan</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">y</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">speed</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">frames_path</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ai.PacMan" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">src.scripts.ai.</code><code class="sig-name descname">PacMan</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lx</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">ly</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">speed</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">size</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">highscore</span><span class="p">:</span> <span class="n">int</span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ai.PacMan" title="Permalink to this definition">¶</a></dt>
 <dd><p>The PacMan Character Controller</p>
 <p>The PacMan class controls the animation, direction, events and state of the character
 controlled through pygame key-events externally.
@@ -225,26 +287,52 @@ controlled through pygame key-events externally.
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>int</em>) – local x coordinate</p></li>
-<li><p><strong>y</strong> – local y coordinate</p></li>
-<li><p><strong>speed</strong> (<em>float</em>) – how many tiles are travelled per second</p></li>
-<li><p><strong>frames_path</strong> (<em>str</em>) – path to directory containing the png images used for character animation, animation is
-generated based on the order of the images. path must end with /<a href="#id5"><span class="problematic" id="id6">*</span></a>.png as only png images
-are supported</p></li>
+<li><p><strong>lx</strong> (<em>int</em>) – local x-coordinate on the tile_map</p></li>
+<li><p><strong>ly</strong> – local y-coordinate on the tile_map</p></li>
+<li><p><strong>speed</strong> (<em>int</em>) – how many tiles are travelled per second</p></li>
+<li><p><strong>size</strong> (<em>int</em>) – should be equal to tile_size</p></li>
+<li><p><strong>highscore</strong> (<em>int</em>) – copy of highscore value from storage</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="src.scripts.ai.PacMan.animate">
-<code class="sig-name descname">animate</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#src.scripts.ai.PacMan.animate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Run Animation Functions
-animations setup should be used in separate unctions and then called from here</p>
+<dt id="src.scripts.ai.PacMan.get_score">
+<code class="sig-name descname">get_score</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ai.PacMan.get_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>get current score</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="src.scripts.ai.PacMan.direction">
-<em class="property">property </em><code class="sig-name descname">direction</code><a class="headerlink" href="#src.scripts.ai.PacMan.direction" title="Permalink to this definition">¶</a></dt>
-<dd><p>get current direction</p>
+<dt id="src.scripts.ai.PacMan.move">
+<code class="sig-name descname">move</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ai.PacMan.move" title="Permalink to this definition">¶</a></dt>
+<dd><p>move in the current direction</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.ai.PacMan.remove_life">
+<code class="sig-name descname">remove_life</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ai.PacMan.remove_life" title="Permalink to this definition">¶</a></dt>
+<dd><p>remove a life and return the new amount left</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.ai.PacMan.resume_animation">
+<code class="sig-name descname">resume_animation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ai.PacMan.resume_animation" title="Permalink to this definition">¶</a></dt>
+<dd><p>update frame in animation</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.ai.PacMan.rotate">
+<code class="sig-name descname">rotate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">new_direction</span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.scripts.ai.PacMan.rotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>rotate to face the current direction</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="src.scripts.ai.PacMan.update_score">
+<code class="sig-name descname">update_score</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">base_score</span></em>, <em class="sig-param"><span class="n">is_cherry</span><span class="p">:</span> <span class="n">bool</span></em>, <em class="sig-param"><span class="n">is_ghost</span><span class="p">:</span> <span class="n">bool</span></em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#src.scripts.ai.PacMan.update_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the current score based on the item eaten by PacMan
+:param base_score: the base score depending on the game session’s time
+:param is_cherry: item eaten was a cherry
+:param is_ghost: item eaten was a ghost
+:return: current score</p>
 </dd></dl>
 
 </dd></dl>
