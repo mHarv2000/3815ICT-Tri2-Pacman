@@ -8,7 +8,13 @@ from src.scripts.misc import Direction
 
 
 class Tile:
+    """
+    A cell representing a physical coordinate on the scene plane.
 
+    Each tile has an ID to identify it's specific type and an Attribute to help with AI pathfinding.
+    The Tile represents a physical local coordinate on the grid that is either transversable (player can walk on)
+    or non-transversable.
+    """
     def __init__(self, lx: int, ly: int, gx: int, gy: int, transversable: bool, tile_id: TileID = None,
                  tile_attr: TileAttr = None):
         self.__local_coords = lx, ly
@@ -17,40 +23,47 @@ class Tile:
         self.__tile_id = tile_id
         self.__tile_attr = tile_attr
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'{self.__local_coords}, {self.__transverse}'
 
-    def __int__(self):
+    def __int__(self) -> int:
         return 1
 
     def __radd__(self, other):
         return other + 1
 
     @property
-    def lx(self):
+    def lx(self) -> int:
+        """ get local x-coordinate """
         return self.__local_coords[0]
 
     @property
-    def ly(self):
+    def ly(self) -> int:
+        """ get local y-coordinate """
         return self.__local_coords[1]
 
     @property
-    def lcoords(self):
+    def lcoords(self) -> [int, int]:
+        """ get local coordinates """
         return self.__local_coords
 
     @property
-    def gx(self):
+    def gx(self) -> int:
+        """ get global x-coordinate """
         return self.__global_coords[0]
 
     @property
-    def gy(self):
+    def gy(self) -> int:
+        """ get global y-coordinate """
         return self.__global_coords[1]
 
     @property
-    def gcoords(self):
+    def gcoords(self) -> [int, int]:
+        """ get global scene coordinates """
         return self.__global_coords
 
-    def is_transversible(self):
+    def is_transversible(self) -> bool:
+        """ check whether tile can be walked on by pacman """
         return self.__transverse
 
 
@@ -71,7 +84,7 @@ class TileMap:
     """
     def __init__(self, tile_size: int):
         self.tiles: [Tile] = []
-        with open(os.path.abspath('../src/data/data.json'), 'r') as file:
+        with open(os.path.abspath('../data/data.json'), 'r') as file:
             data = json.load(file)['staticLevel']
             for x, row in enumerate(data):
                 self.tiles.append([])
@@ -102,6 +115,7 @@ class TileMap:
         self.__gwidth = self.__lwidth * tile_size
 
     def __getitem__(self, item: tuple):
+        """ get tile at coordinates x, y """
         return self.tiles[item[1]][item[0]]
 
     def adjacent_tile(self, x: int, y: int, direction: Direction):
@@ -150,11 +164,12 @@ class TileMap:
 
     def __gen_path(self, origin_x: int, origin_y: int, exclude_direction: str = None):
         """
-        generate a list of recurisive paths for each corridor on the grid
+        generate a singular path by finding a list of nodes along a path before it reaches an
+        intersection i.e. the path ends once the final node/tile has more than one direction to travel in.
         :param origin_x: x-local-coordinate of the starting coordinate
         :param origin_y: y-local-coordinate of the starting coordinate
         :param exclude_direction:
-        :return:
+        :return: yields tiles until end of path
         """
         origin = self[origin_x, origin_y]
         adjacent_tiles = self.adjacent_tiles(origin_x, origin_y, exclude_direction)
@@ -182,7 +197,7 @@ class TileMap:
 
             yield path
 
-    def __gen_paths_to_target(self, start_coords: tuple, target_coords: tuple):
+    def __gen_paths_to_target(self, start_coords: tuple, target_coords: tuple) -> [Tile]:
         """
         reorganise each available path on the grid to find the shortest path between
         the starting coordinate and target coordinate
@@ -191,7 +206,7 @@ class TileMap:
         :type start_coords: Tuple[int, int]
         :param target_coords: target coordinate
         :type target_coords: Tuple[int, int]
-        :return: list of coordinates between the start and target point
+        :return: list of paths between the start and target point
         """
         start = self.__gen_path(*start_coords)
         paths = []
@@ -215,10 +230,12 @@ class TileMap:
 
     def find_shortest_path(self, start_x: int, start_y: int, target_x: int, target_y: int):
         """
-        :param start_x:
-        :param start_y:
-        :param target_x:
-        :param target_y:
+        Given a list of all the paths on the grid, finds the shortest path between the start
+        and target position.
+        :param start_x: starting local x-coordinate
+        :param start_y: starting local y-coordinate
+        :param target_x: target local x-coordinate
+        :param target_y: target local y-coordinate
         :return: single path
         """
         start = self[start_x, start_y]
@@ -253,6 +270,3 @@ class TileMap:
         # TODO: make render function
         ...
 
-
-tm = TileMap(20)
-tm.find_shortest_path(1, 1, 5, 1)

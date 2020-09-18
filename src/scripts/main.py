@@ -6,6 +6,7 @@ from threading import Thread
 import pygame
 from src.scripts.misc import Direction
 from src.scripts.ui import Label
+from testing.shotest_path import TileMap
 from testing.testing import PacMan
 
 """
@@ -101,7 +102,8 @@ def start_game():
 
     running = True
     back_btn = Label(0, 0, (255, 255, 255), '<', 10, sml_font)
-    pacman = PacMan(50, 50, 50)
+    tile_map = TileMap(TILE_SIZE)
+    pacman = PacMan(50, 50, 50, 1)
 
     def update_per_second():
         while running:
@@ -132,7 +134,7 @@ def start_game():
 
         display.fill((0, 0, 0))
         back_btn.render(display)
-        display.blit(pacman.get(), (pacman.x, pacman.y))
+        display.blit(pacman.get(), (pacman.gx, pacman.gy))
 
         pygame.display.update()
 
@@ -153,5 +155,3 @@ while True:
         break
 
 pygame.quit()
-
-
