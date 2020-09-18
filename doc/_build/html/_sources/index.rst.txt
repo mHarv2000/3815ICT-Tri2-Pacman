@@ -14,6 +14,7 @@ Welcome to PacMan's documentation!
    scene.rst
    ai.rst
    ui.rst
+   misc.rst
    consts.rst
 
 

@@ -86,7 +86,7 @@ class TileMap:
 
     def __init__(self, tile_size: int):
         self.__tiles: [Tile] = []
-        with open(os.path.abspath('../data/data.json'), 'r') as file:
+        with open(os.path.abspath('../src/data/data.json'), 'r') as file:
             data = json.load(file)['staticLevel']
             for x, row in enumerate(data):
                 self.__tiles.append([])
