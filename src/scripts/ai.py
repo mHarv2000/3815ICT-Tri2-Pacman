@@ -90,7 +90,7 @@ class PacMan(Character):
     def __init__(self, lx: int, ly: int, speed: int, size: int, highscore: int):
         super(PacMan, self).__init__(lx, ly, speed, size)
         try:
-            url = glob.glob('../src/img/pacman/*.png')
+            url = glob.glob('../img/pacman/*.png')
             self.__animation_seq = [pygame.transform.scale(pygame.image.load(img), (size, size)) for img in url]
         except FileNotFoundError as err:
             raise FileExistsError("file path to directory: '%s' does not exist" % err)
@@ -186,8 +186,8 @@ class Ghost(Character):
     def __init__(self, lx: int, ly: int, speed: int, size: int, ghost_name: str):
         super(Ghost, self).__init__(lx, ly, speed, size)
         try:
-            url = glob.glob(f'../src/ghost/{ghost_name}/*.png')
-            vuln_url = glob.glob('../src/ghost/vulnerable/*.png')
+            url = glob.glob(f'../img/ghost/{ghost_name}/*.png')
+            vuln_url = glob.glob('../img/ghost/vulnerable/*.png')
             self.__animation_seq = [pygame.transform.scale(pygame.image.load(img), (size, size)) for img in url]
             self.__vuln_animation_seq = [pygame.transform.scale(
                 pygame.image.load(img), (size, size)) for img in vuln_url]

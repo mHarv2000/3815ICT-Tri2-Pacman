@@ -14,7 +14,7 @@ The pygame display renders each page as a modal. The menu, settings nd start_gam
 of running each page and deallocating memory when necessary. 
 """
 
-with open(os.path.abspath('../src/data/data.json'), 'r') as file:
+with open(os.path.abspath('../data/data.json'), 'r') as file:
     data = load(file)['settings']
 try:
     WINDOW_W, WINDOW_H = data['windowWidth'], data['windowHeight']
@@ -31,11 +31,11 @@ finally:
 pygame.init()
 pygame.font.init()
 pygame.display.set_caption('Pac Man')
-icon = pygame.image.load(os.path.abspath('../src/img/pacman/pacman_0.png'))
+icon = pygame.image.load(os.path.abspath('../img/pacman/pacman_0.png'))
 pygame.display.set_icon(icon)
 display: pygame.Surface = pygame.display.set_mode((WINDOW_W, WINDOW_H))
-lrg_font = pygame.font.Font(os.path.abspath('../src/font/BarcadeBrawlRegular.ttf'), 20)
-sml_font = pygame.font.Font(os.path.abspath('../src/font/BarcadeBrawlRegular.ttf'), 11)
+lrg_font = pygame.font.Font(os.path.abspath('../font/BarcadeBrawlRegular.ttf'), 20)
+sml_font = pygame.font.Font(os.path.abspath('../font/BarcadeBrawlRegular.ttf'), 11)
 clock = pygame.time.Clock()
 
 del icon
@@ -46,7 +46,7 @@ def menu():
 
     running = True
     origin = 50, 50
-    logo = pygame.image.load(os.path.abspath('../src/img/logo/logo.png')).convert_alpha()
+    logo = pygame.image.load(os.path.abspath('../img/logo/logo.png')).convert_alpha()
     start_game_btn = Label(origin[0], origin[1] + (logo.get_height() + 50), (255, 255, 255), "Start Game", 20, lrg_font)
     settings_btn = Label(origin[0], origin[1] + (logo.get_height() + 100), (255, 255, 255), "Settings", 20, lrg_font)
 
@@ -105,7 +105,7 @@ def start_game():
     level = 0
     back_btn = Label(0, 0, (255, 255, 255), '<', 10, sml_font)
     tile_map = TileMap(TILE_SIZE)
-    pacman = PacMan(1, 1, 1, 50, 0)
+    pacman = PacMan(1, 1, 5, 50, 0)
     ghost_inky = Ghost(0, 0, 1, 50, 'inky')
     ghost_blinky = Ghost(0, 0, 1, 50, 'blinky')
     ghost_pinky = Ghost(0, 0, 1, 50, 'pinky')
@@ -116,6 +116,8 @@ def start_game():
             time.sleep(.1)
             pacman.move()
             pacman.resume_animation()
+            ghost_blinky.move()
+            ghost_blinky.resume_animation()
 
     th1 = Thread(target=update_per_second)
     th1.start()
@@ -141,6 +143,10 @@ def start_game():
         display.fill((0, 0, 0))
         back_btn.render(display)
         display.blit(pacman.get_frame(), (pacman.gx, pacman.gy))
+        display.blit(ghost_blinky.get_frame(), (50, 50))
+        display.blit(ghost_clyde.get_frame(), (100, 50))
+        display.blit(ghost_inky.get_frame(), (150, 50))
+        display.blit(ghost_pinky.get_frame(), (200, 50))
 
         pygame.display.update()
 
