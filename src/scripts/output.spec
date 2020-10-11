@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['output.py'],
-             pathex=['C:\\Users\\bruce\\Desktop\\pacman_milestone_3\\pacman\\src\\scripts'],
+             pathex=['/Users/maxharvey/Desktop/pacman/pacman/src/scripts'],
              binaries=[],
              datas=[],
              hiddenimports=[],
